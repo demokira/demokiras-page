@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sargis Dshkhunyan's Page</title>
+  <meta name="description" content="music \ games \ ai \ content">
+  <meta property="og:title" content="">
+  <meta property="og:description" content="">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23808080'/%3E%3C/svg%3E" type="image/svg+xml">
+
+  <!-- Set theme before first paint to avoid flash: manual override lasts one day, otherwise by device time (dark 20:00–07:00) -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("js");
+      var today = new Date().toDateString();
+      var saved = null, savedDay = null;
+      try {
+        saved = localStorage.getItem("dk-theme");
+        savedDay = localStorage.getItem("dk-theme-day");
+      } catch (e) {}
+      var t;
+      if (saved && savedDay === today) {
+        t = saved;
+      } else {
+        var h = new Date().getHours();
+        t = (h >= 20 || h < 7) ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body id="top">
+
+  <div id="master">
+
+    <!-- ============ MENU ============ -->
+    <nav class="menu" aria-label="Main navigation">
+      <a class="menubutton" href="#music">music</a>
+      <a class="menubutton" href="#games">games</a>
+      <a class="menubutton" href="#blog">blog</a>
+      <a class="menubutton" href="#about">about</a>
+
+      <button id="theme-toggle" class="menubutton theme-toggle" type="button" aria-label="Switch color theme">◐</button>
+    </nav>
+
+    <!-- ============ NEWS TICKER ============ -->
+    <div class="ticker" aria-label="News ticker">
+      <div class="ticker-track" aria-hidden="true">
+        <span>Welcome to Sargis Dshkhunyan's Page aka demokira | Very soon everything will work here | Welcome to Sargis Dshkhunyan's Page aka demokira | Very soon everything will work here |&nbsp;</span>
+        <span>Welcome to Sargis Dshkhunyan's Page aka demokira | Very soon everything will work here | Welcome to Sargis Dshkhunyan's Page aka demokira | Very soon everything will work here |&nbsp;</span>
+      </div>
+    </div>
+
+    <!-- ============ LAYOUT: SIDEBAR + MAIN ============ -->
+    <div class="layout">
+
+      <!-- ------------ SIDEBAR ------------ -->
+      <aside class="sidebar">
+
+        <div class="box">
+          <div class="box-bar">sns</div>
+          <div class="box-body">
+            <!-- Fill in real links (href="#" are placeholders) -->
+            <ul class="sns-list">
+              <li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener">» youtube</a></li>
+              <li><a href="https://demokira.itch.io" target="_blank" rel="noopener">» itch.io</a></li>
+              <li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener">» bandcamp</a></li>
+              <li><a href="https://www.tiktok.com/@demokira_?_r=1&_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener">» tiktok</a></li>
+              <li><a href="https://t.me/dshkhn" target="_blank" rel="noopener">» telegram</a></li>
+              <li><a href="mailto:sargis.dshkhunyan@gmail.com">» email</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="box-bar">Calendar</div>
+          <div class="box-body calendar-box">
+            <p class="cal-month" id="cal-month"></p>
+            <table class="cal-grid">
+              <thead>
+                <tr>
+                  <th>mo</th><th>tu</th><th>we</th><th>th</th><th>fr</th><th>sa</th><th>su</th>
+                </tr>
+              </thead>
+              <tbody id="cal-days"></tbody>
+            </table>
+            <p class="clock" id="clock">--:--:--</p>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="box-bar">Stats</div>
+          <div class="box-body stats-body">
+            <p class="stat-line">you are visitor</p>
+            <p class="counter" id="visitor-count">#00042</p>
+            <hr class="rule">
+            <p class="stat-line">status: <span class="online blink">● online</span></p>
+            <p class="stat-line">updated: <span id="updated">2026-08-05</span></p>
+          </div>
+        </div>
+
+      </aside>
+
+      <!-- ------------ MAIN ------------ -->
+      <main class="content">
+
+        <!-- MUSIC -->
+        <section id="music" class="win reveal" aria-labelledby="music-heading">
+          <div class="win-bar">
+            <span class="win-title">Music</span>
+          </div>
+          <div class="win-body">
+            <h2 id="music-heading" class="section-title">Music</h2>
+            <p class="section-lede">
+              experimental \ electronic \ ambient. Standalone releases and soundtracks
+              for indie games — mine and other people's.
+            </p>
+
+            <ul class="release-grid">
+              <li class="release-card">
+                <h3 class="release-title">Selected works</h3>
+                <p class="release-meta">the best music of '23-'24</p>
+                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">bandcamp ↗</a>
+              </li>
+              <li class="release-card">
+                <h3 class="release-title">Demokira (album)</h3>
+                <p class="release-meta">ambient · industrial · latest album</p>
+                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">bandcamp ↗</a>
+              </li>
+              <li class="release-card">
+                <h3 class="release-title">Game soundtracks</h3>
+                <p class="release-meta">original scores for visual novels &amp; more</p>
+                <a class="btn btn-small" href="https://soundcloud.com/demokira" target="_blank" rel="noopener">soundcloud ↗</a>
+              </li>
+            </ul>
+
+            <p class="mono-note">// need custom music for your game? → <a href="#about">send a request</a></p>
+          </div>
+        </section>
+
+        <!-- GAMES -->
+        <section id="games" class="win reveal" aria-labelledby="games-heading">
+          <div class="win-bar">
+            <span class="win-title">Games</span>
+          </div>
+          <div class="win-body">
+            <h2 id="games-heading" class="section-title">Games</h2>
+            <p class="section-lede">
+              Short narrative games. Small in scope, heavy on atmosphere —
+              every one scored with original music.
+            </p>
+
+            <ul class="release-grid">
+              <li class="release-card">
+                <h3 class="release-title">TV Show Or Die?</h3>
+                <p class="release-meta"><span class="game-genre">visual novel</span> · a short visual novel about a guy who gets into trouble for money. The game is filled with humor and nonsense.</p>
+                <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">itch.io ↗</a>
+              </li>
+              <li class="release-card">
+                <h3 class="release-title">Soul of Akstama</h3>
+                <p class="release-meta"><span class="game-genre">visual novel</span> · a very short visual novel that tells the story of a mirror located in Akstama Castle.</p>
+                <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">itch.io ↗</a>
+              </li>
+              <li class="release-card">
+                <h3 class="release-title">16-bit (J)RPG Music Pack</h3>
+                <p class="release-meta"><span class="game-genre">asset pack</span> · free asset pack for fellow devs, take it, ship it.</p>
+                <a class="btn btn-small" href="https://demokira.itch.io/16-bit-jrpg-free-music-pack" target="_blank" rel="noopener">itch.io ↗</a>
+              </li>
+            </ul>
+
+            <p class="mono-note">// full portfolio → <a href="https://demokira.itch.io" target="_blank" rel="noopener">demokira.itch.io ↗</a></p>
+          </div>
+        </section>
+
+        <!-- BLOG -->
+        <section id="blog" class="win reveal" aria-labelledby="blog-heading">
+          <div class="win-bar">
+            <span class="win-title">Blog</span>
+          </div>
+          <div class="win-body">
+            <h2 id="blog-heading" class="section-title">Blog</h2>
+            <p class="section-lede">Short notes: work-in-progress updates, thoughts, breakdowns.</p>
+
+            <!-- Edit posts below: newest first. Move .tag-new to the latest one. -->
+            <ol class="post-list">
+              <li class="post">
+                <time class="post-date" datetime="2026-07-28">2026-08-05</time>
+                <div class="post-body">
+                  <h3 class="post-title">My personal page. I'm so glad! <span class="tag-new blink">new!</span></h3>
+                  <p>I’ve created my own page. I’ll try to populate it as things progress.</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+        </section>
+
+        <!-- ABOUT + CONTACT -->
+        <section id="about" class="win reveal" aria-labelledby="about-heading">
+          <div class="win-bar">
+            <span class="win-title">About</span>
+          </div>
+          <div class="win-body">
+            <h2 id="about-heading" class="section-title">About</h2>
+
+            <div class="about-cols">
+              <div class="about-bio">
+                <p>
+                  I'm <strong>Demokira</strong> — a multidisciplinary creator. Lover of indie games
+                  and their soundtracks, and a composer of soundtracks for those same indie games.
+                </p>
+                <p>
+                  Everything here is one practice, not four hobbies: the <a href="#music">music</a> scores
+                  the <a href="#games">games</a>, the AI experiments feed both, and the
+                  <a href="#blog">content</a> documents how it all gets made.
+                </p>
+                <ul class="about-facts">
+                  <li><span class="fact-key">music</span> experimental \ electronic \ ambient</li>
+                  <li><span class="fact-key">games</span> visual &amp; kinetic novels</li>
+                  <li><span class="fact-key">ai</span> generative tools in a human-led pipeline</li>
+                  <li><span class="fact-key">content</span> devlogs, breakdowns, process notes</li>
+                </ul>
+              </div>
+
+              <!--
+                Collaboration form.
+                Replace YOUR_FORM_ID with your real Formspree form id (https://formspree.io)
+                and requests will land in your inbox. No backend needed.
+              -->
+              <form id="collab-form" class="collab-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+                <h3 class="form-title">▸ request a collaboration</h3>
+
+                <label class="field">
+                  <span class="field-label">Name</span>
+                  <input type="text" name="name" required autocomplete="name" placeholder="Your name">
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Email / contact</span>
+                  <input type="text" name="contact" required autocomplete="email" placeholder="you@example.com or @handle">
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Type of collaboration</span>
+                  <select name="type" required>
+                    <option value="" selected disabled>— select —</option>
+                    <option value="music">Music / soundtrack</option>
+                    <option value="games">Games</option>
+                    <option value="ai">AI</option>
+                    <option value="content">Content</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+
+                <label class="field">
+                  <span class="field-label">Message</span>
+                  <textarea name="message" rows="4" required placeholder="What are we making?"></textarea>
+                </label>
+
+                <button class="btn" type="submit">Send request</button>
+                <p class="form-status" role="status" aria-live="polite"></p>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="site-footer">
+      <p class="footer-copy">© <span id="year">2026</span> demokira</p>
+    </footer>
+
+  </div><!-- /master -->
+
+  <button id="to-top" type="button" aria-label="Scroll to top">▲ up</button>
+
+</body>
+</html>
