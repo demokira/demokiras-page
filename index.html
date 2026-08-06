@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>sargis</title>
-  <meta name="description" content="music \ games \ ai \ content">
+  <meta name="description" content="">
   <meta property="og:title" content="">
   <meta property="og:description" content="">
   <meta property="og:type" content="website">
@@ -40,7 +40,36 @@
 </head>
 <body id="top">
 
+  <!-- decorative win95 backdrop: shimmering puddles + light rays -->
+  <div class="winbg" aria-hidden="true">
+    <div class="fx-bg" aria-hidden="true"></div>
+  </div>
+
+  <!-- liquid-glass ripple filter (from "Liquid Glass Effect macOS", lucasromerodb) -->
+  <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">
+    <filter id="glass-distortion" x="0%" y="0%" width="100%" height="100%" filterUnits="objectBoundingBox">
+      <feTurbulence type="fractalNoise" baseFrequency="0.012 0.012" numOctaves="1" seed="5" result="turbulence" />
+      <feComponentTransfer in="turbulence" result="mapped">
+        <feFuncR type="gamma" amplitude="1" exponent="10" offset="0.5" />
+        <feFuncG type="gamma" amplitude="0" exponent="1" offset="0" />
+        <feFuncB type="gamma" amplitude="0" exponent="1" offset="0.5" />
+      </feComponentTransfer>
+      <feGaussianBlur in="turbulence" stdDeviation="2" result="softMap" />
+      <feSpecularLighting in="softMap" surfaceScale="4" specularConstant="1" specularExponent="90" lighting-color="white" result="specLight">
+        <fePointLight x="-200" y="-200" z="300" />
+      </feSpecularLighting>
+      <feComposite in="specLight" operator="arithmetic" k1="0" k2="1" k3="1" k4="0" result="litImage" />
+      <feDisplacementMap in="SourceGraphic" in2="softMap" scale="35" xChannelSelector="R" yChannelSelector="G" />
+    </filter>
+  </svg>
+
   <div id="master">
+
+    <!-- glass panel layers: liquid ripple blur + tint/shine/reflections (pointer-events: none) -->
+    <div class="glass-ripple" aria-hidden="true"></div>
+    <div class="glass-tint" aria-hidden="true"></div>
+
+    <div class="glass-content">
 
     <!-- ============ MENU ============ -->
     <nav class="menu" aria-label="Main navigation">
@@ -67,20 +96,21 @@
       <aside class="sidebar">
 
         <div class="box">
-          <div class="box-bar">Social Media</div>
+          <div class="box-bar cap">Social Media</div>
           <div class="box-body">
             <ul class="sns-list">
               <li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener">» youtube</a></li>
               <li><a href="https://demokira.itch.io" target="_blank" rel="noopener">» itch.io</a></li>
               <li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener">» bandcamp</a></li>
               <li><a href="https://www.tiktok.com/@demokira_?_r=1&_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener">» tiktok</a></li>
+              <li><a href="https://www.instagram.com/srgsdshkhnn" target="_blank" rel="noopener">» instagram</a></li>
               <li><a href="mailto:sargis.dshkhunyan@gmail.com">» email</a></li>
             </ul>
           </div>
         </div>
 
         <div class="box">
-          <div class="box-bar">Calendar</div>
+          <div class="box-bar cap">Calendar</div>
           <div class="box-body calendar-box">
             <p class="cal-month" id="cal-month"></p>
             <table class="cal-grid">
@@ -92,6 +122,16 @@
               <tbody id="cal-days"></tbody>
             </table>
             <p class="clock" id="clock">--:--:--</p>
+          </div>
+        </div>
+
+        <div class="box">
+          <div class="box-bar cap">Donate <span class="box-bar-note">USDT/USDC ERC-20</span></div>
+          <div class="box-body donate-body">
+            <div class="wallet-row">
+              <code class="wallet-addr" id="wallet-addr">0xfd54e82a2780e17328cb13de0e4c71edf7f13eb7</code>
+              <button class="wallet-copy" type="button" data-copy-target="wallet-addr">copy</button>
+            </div>
           </div>
         </div>
 
@@ -126,22 +166,22 @@
             <ul class="release-grid">
               <li class="release-card">
                 <h3 class="release-title">Selected works</h3>
-                <p class="release-meta">the best music of '23-'24</p>
+                <p class="release-meta"><span class="genre">playlist</span>the best music of '23-'24</p>
                 <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">bandcamp ↗</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Demokira (album)</h3>
-                <p class="release-meta">ambient · industrial · latest album</p>
+                <p class="release-meta"><span class="genre">album</span>ambient · industrial · latest album</p>
                 <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">bandcamp ↗</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Game soundtracks</h3>
-                <p class="release-meta">original scores for visual novels &amp; more</p>
+                <p class="release-meta"><span class="genre">soundtrack</span>original scores for visual novels &amp; more</p>
                 <a class="btn btn-small" href="https://soundcloud.com/demokira" target="_blank" rel="noopener">soundcloud ↗</a>
               </li>
             </ul>
 
-            <p class="mono-note">// need custom music for your game? → <a href="#about">send a request</a></p>
+            <p class="mono-note">// need custom music for your game? → <a href="mailto:sargis.dshkhunyan@gmail.com">send a request</a></p>
           </div>
         </section>
 
@@ -160,17 +200,17 @@
             <ul class="release-grid">
               <li class="release-card">
                 <h3 class="release-title">TV Show Or Die?</h3>
-                <p class="release-meta"><span class="game-genre">visual novel</span> · a short visual novel about a guy who gets into trouble for money. The game is filled with humor and nonsense.</p>
+                <p class="release-meta"><span class="genre">visual novel</span>a short visual novel about a guy who gets into trouble for money. The game is filled with humor and nonsense.</p>
                 <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">itch.io ↗</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Soul of Akstama</h3>
-                <p class="release-meta"><span class="game-genre">visual novel</span> · a very short visual novel that tells the story of a mirror located in Akstama Castle.</p>
+                <p class="release-meta"><span class="genre">visual novel</span>a very short visual novel that tells the story of a mirror located in Akstama Castle.</p>
                 <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">itch.io ↗</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">16-bit (J)RPG Music Pack</h3>
-                <p class="release-meta"><span class="game-genre">asset pack</span> · free asset pack for fellow devs, take it, ship it.</p>
+                <p class="release-meta"><span class="genre">asset pack</span>free asset pack for fellow devs, take it, ship it.</p>
                 <a class="btn btn-small" href="https://demokira.itch.io/16-bit-jrpg-free-music-pack" target="_blank" rel="noopener">itch.io ↗</a>
               </li>
             </ul>
@@ -201,7 +241,7 @@
           </div>
         </section>
 
-        <!-- ABOUT + CONTACT -->
+        <!-- ABOUT -->
         <section id="about" class="win reveal" aria-labelledby="about-heading">
           <div class="win-bar">
             <span class="win-title">About</span>
@@ -227,45 +267,6 @@
                   <li><span class="fact-key">content</span> devlogs, breakdowns, process notes</li>
                 </ul>
               </div>
-
-              <!--
-                Collaboration form.
-                Replace YOUR_FORM_ID with your real Formspree form id (https://formspree.io)
-                and requests will land in your inbox. No backend needed.
-              -->
-              <form id="collab-form" class="collab-form" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
-                <h3 class="form-title">▸ request a collaboration</h3>
-
-                <label class="field">
-                  <span class="field-label">Name</span>
-                  <input type="text" name="name" required autocomplete="name" placeholder="Your name">
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Email / contact</span>
-                  <input type="text" name="contact" required autocomplete="email" placeholder="you@example.com or @handle">
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Type of collaboration</span>
-                  <select name="type" required>
-                    <option value="" selected disabled>— select —</option>
-                    <option value="music">Music / soundtrack</option>
-                    <option value="games">Games</option>
-                    <option value="ai">AI</option>
-                    <option value="content">Content</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
-
-                <label class="field">
-                  <span class="field-label">Message</span>
-                  <textarea name="message" rows="4" required placeholder="What are we making?"></textarea>
-                </label>
-
-                <button class="btn" type="submit">Send request</button>
-                <p class="form-status" role="status" aria-live="polite"></p>
-              </form>
             </div>
           </div>
         </section>
@@ -277,6 +278,8 @@
     <footer class="site-footer">
       <p class="footer-copy">© <span id="year">2026</span> demokira</p>
     </footer>
+
+    </div><!-- /glass-content -->
 
   </div><!-- /master -->
 

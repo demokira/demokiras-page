@@ -44,6 +44,19 @@
   --online: #3ad46b;
   --warn: #e0a03a;
 
+  /* animated backdrop: shimmering puddles (pearl gray) */
+  --puddle: 200, 200, 210;
+  --puddle-max: 0.35;
+  --win-vig: rgba(0, 0, 0, 0.55);
+
+  /* glass panel (liquid glass over the animated backdrop) */
+  --panel-rgb: 16, 16, 21;
+  --surface-rgb: 21, 21, 27;
+  --glass-blur: 10px;
+  --glass-tint: rgba(14, 14, 20, 0.5);
+  --glass-high: rgba(255, 255, 255, 0.16);   /* glass edge/glare highlights */
+  --glass-low: rgba(0, 0, 0, 0.28);          /* glass edge shadow */
+
   /* title-bar gradient animates via winbar-shift */
   --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
   --titlebar-inactive: linear-gradient(90deg, #76767f, #9a9aa3, #b6b6bf, #9a9aa3, #76767f);
@@ -69,6 +82,17 @@
   --heading: #14161a;
   --online: #0a5c25;
   --warn: #8a4b00;
+
+  --puddle: 30, 30, 40;
+  --puddle-max: 0.3;
+  --win-vig: rgba(0, 0, 0, 0.22);
+
+  --panel-rgb: 212, 208, 200;
+  --surface-rgb: 212, 208, 200;
+  --glass-blur: 10px;
+  --glass-tint: rgba(244, 241, 234, 0.42);
+  --glass-high: rgba(255, 255, 255, 0.5);
+  --glass-low: rgba(80, 76, 70, 0.3);
 
   --titlebar: linear-gradient(90deg, #3a3a42, #54545c, #5f5f68, #54545c, #3a3a42);
   --titlebar-inactive: linear-gradient(90deg, #505058, #6a6a72, #76767f, #6a6a72, #505058);
@@ -118,13 +142,73 @@ a:hover {
   outline-offset: 1px;
 }
 
+/* ---------- animated win95 backdrop: shimmering puddles ---------- */
+.winbg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+  box-shadow: inset 0 0 180px 70px var(--win-vig);
+}
+
+/* full-screen canvas effect (drawn in script.js), soft edges via mask */
+.fx-bg {
+  position: absolute;
+  inset: 0;
+  mask-image: radial-gradient(ellipse 135% 120% at 50% 45%, #000 50%, transparent 100%);
+  -webkit-mask-image: radial-gradient(ellipse 135% 120% at 50% 45%, #000 50%, transparent 100%);
+}
+
+.fx-bg canvas {
+  display: block;
+}
+
 /* ---------- master container (fixed, centered, like an old homepage) ---------- */
 #master {
+  position: relative;
   max-width: 930px;
   margin: 14px auto 24px;
-  background: var(--panel);
+  background: transparent;
   border: 1px solid var(--line);
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+
+/* liquid-glass layer: blurs the animated backdrop and applies the SVG ripple */
+.glass-ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
+  filter: url(#glass-distortion);
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* tint + reflections + edge shine, painted above the ripple, below the content */
+.glass-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(115deg, rgba(255, 255, 255, 0.09) 0%, rgba(255, 255, 255, 0) 38%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0) 30%),
+    linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0) 22%),
+    var(--glass-tint);
+  box-shadow:
+    inset 0 1px 0 var(--glass-high),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+    inset -1px 0 0 var(--glass-low);
+}
+
+/* content sits above the glass layers */
+.glass-content {
+  position: relative;
+  z-index: 2;
 }
 
 /* ---------- menu (row of classic buttons) ---------- */
@@ -176,7 +260,7 @@ a:hover {
 .ticker {
   overflow: hidden;
   border-bottom: 1px solid var(--line);
-  background: var(--surface);
+  background: rgba(var(--surface-rgb), 0.55);
   padding: 4px 0;
 }
 
@@ -208,6 +292,7 @@ a:hover {
 
 .sidebar {
   flex: 0 0 188px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -221,10 +306,14 @@ a:hover {
 /* ---------- sidebar boxes (inactive-window style) ---------- */
 .box {
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: rgba(var(--surface-rgb), 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .box-bar {
+  display: flex;
+  align-items: center;
   padding: 2px 8px 3px;
   background: var(--titlebar-inactive);
   background-size: 200% 100%;
@@ -234,6 +323,20 @@ a:hover {
   letter-spacing: 1px;
   text-transform: lowercase;
   animation: winbar-shift 3s linear infinite;
+}
+
+.box-bar.cap {
+  text-transform: capitalize;
+}
+
+.box-bar-note {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 400;
+  color: var(--titlebar-text);
+  opacity: 0.6;
+  vertical-align: middle;
+  text-transform: none;
 }
 
 .box-body {
@@ -258,6 +361,59 @@ a:hover {
 
 .sns-list a:hover {
   text-decoration: underline;
+}
+
+/* ---------- donate / wallets ---------- */
+.donate-body {
+  padding: 8px 10px;
+}
+
+.wallet-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.wallet-addr {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallet-copy {
+  flex: 0 0 auto;
+  padding: 2px 8px 3px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--ctl-text);
+  background: var(--ctl-face);
+  border: 0;
+  cursor: pointer;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #ffffff,
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+
+.wallet-copy:hover {
+  text-decoration: underline;
+}
+
+.wallet-copy:active {
+  box-shadow:
+    inset 1px 1px #0a0a0a,
+    inset -1px -1px #ffffff,
+    inset 2px 2px #808080,
+    inset -2px -2px #dfdfdf;
+  transform: translate(1px, 1px);
 }
 
 .stats-body {
@@ -342,7 +498,9 @@ a:hover {
 .win {
   margin: 0 0 8px;
   border: 1px solid var(--line);
-  background: var(--surface);
+  background: rgba(var(--surface-rgb), 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
 }
 
 .win:last-child {
@@ -459,7 +617,7 @@ a:hover {
   gap: 3px;
   padding: 8px;
   border: 1px solid var(--line);
-  background: var(--surface-2);
+  background: rgba(var(--surface-rgb), 0.7);
 }
 
 .release-title {
@@ -480,8 +638,10 @@ a:hover {
   margin-top: auto;
 }
 
-.game-genre {
+.genre {
+  display: block;
   font-weight: 700;
+  margin-bottom: 3px;
 }
 
 /* ---------- blog ---------- */
@@ -551,10 +711,10 @@ a:hover {
   100% { background-position: 200% 0%; }
 }
 
-/* ---------- about + form ---------- */
+/* ---------- about ---------- */
 .about-cols {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -584,75 +744,6 @@ a:hover {
 .fact-key::after {
   content: " :";
   color: var(--muted);
-}
-
-.collab-form {
-  padding: 12px;
-  border: 1px solid var(--line);
-  background: var(--surface-2);
-}
-
-.collab-form .btn {
-  display: block;
-  margin-left: auto;
-}
-
-.form-title {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  color: var(--acc);
-  text-transform: lowercase;
-}
-
-.field {
-  display: block;
-  margin-bottom: 8px;
-}
-
-.field-label {
-  display: block;
-  margin-bottom: 2px;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.field input,
-.field select,
-.field textarea {
-  width: 100%;
-  padding: 4px 6px;
-  font-family: var(--font-body);
-  font-size: 12px;
-  color: #000;
-  background: #fff;
-  border: 0;
-  box-shadow:
-    inset -1px -1px #ffffff,
-    inset 1px 1px #808080,
-    inset -2px -2px #dfdfdf,
-    inset 2px 2px #0a0a0a;
-  resize: vertical;
-}
-
-.field input:focus,
-.field select:focus,
-.field textarea:focus {
-  outline: 1px dotted #000;
-  outline-offset: -4px;
-}
-
-.form-status {
-  margin: 8px 0 0;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--acc);
-  min-height: 1.2em;
-}
-
-.form-status.error {
-  color: var(--warn);
 }
 
 /* ---------- footer ---------- */
@@ -729,6 +820,73 @@ html:not(.js) .reveal {
     inset 2px 2px #808080,
     inset -2px -2px #dfdfdf;
   transform: translate(1px, 1px);
+}
+
+/* ---------- scrollbar ---------- */
+
+/* firefox: silver thumb on a darker channel */
+html {
+  scrollbar-color: #c0c0c0 #808080;
+  scrollbar-width: auto;
+}
+
+::-webkit-scrollbar {
+  width: 16px;
+  height: 16px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--ctl-face);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--ctl-face);
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #ffffff,
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+
+::-webkit-scrollbar-corner {
+  background: var(--ctl-face);
+}
+
+::-webkit-scrollbar-button {
+  width: 16px;
+  height: 16px;
+  background: var(--ctl-face);
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #ffffff,
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+
+::-webkit-scrollbar-button:vertical:decrement {
+  background-image: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%208%206'><path%20d='M4%200%20L8%206%20H0%20Z'%20fill='%23000'/></svg>");
+}
+
+::-webkit-scrollbar-button:vertical:increment {
+  background-image: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%208%206'><path%20d='M0%200%20L8%200%20L4%206%20Z'%20fill='%23000'/></svg>");
+}
+
+::-webkit-scrollbar-button:horizontal:decrement {
+  background-image: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%206%208'><path%20d='M4%200%20L4%208%20L0%204%20Z'%20fill='%23000'/></svg>");
+}
+
+::-webkit-scrollbar-button:horizontal:increment {
+  background-image: url("data:image/svg+xml,<svg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%206%208'><path%20d='M6%204%20L0%200%20L0%208%20Z'%20fill='%23000'/></svg>");
+}
+
+::-webkit-scrollbar-button:active {
+  box-shadow:
+    inset 1px 1px #0a0a0a,
+    inset -1px -1px #ffffff,
+    inset 2px 2px #808080,
+    inset -2px -2px #dfdfdf;
 }
 
 /* ---------- responsive ---------- */
