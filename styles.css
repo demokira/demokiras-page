@@ -1,7 +1,7 @@
-/* ==========================================================================
-   DEMOKIRA — old-web edition (minimalism × Y2K × Win9x)
-   aliased bitmap fonts · fixed centered layout · sidebar + main
-   dark theme default · light theme via [data-theme="light"]
+﻿/* ==========================================================================
+   DEMOKIRA вЂ” old-web edition (minimalism Г— Y2K Г— Win9x)
+   aliased bitmap fonts В· fixed centered layout В· sidebar + main
+   dark theme default В· light theme via [data-theme="light"]
    ========================================================================== */
 
 /* ---------- aliased bitmap fonts (pixel remake of MS Sans Serif) ---------- */
@@ -44,15 +44,18 @@
   --online: #3ad46b;
   --warn: #e0a03a;
 
-  /* animated backdrop: shimmering puddles (pearl gray) */
-  --puddle: 200, 200, 210;
-  --puddle-max: 0.35;
-  --win-vig: rgba(0, 0, 0, 0.55);
+  /* animated backdrop: clouds over the sea (drifting clouds + water shimmer) */
+  --puddle: 235, 235, 235;
+  --puddle-max: 0.18;
+  --cloud: 255, 255, 255;
+  --cloud-max: 0.16;
+  --bg-sky: linear-gradient(180deg, #383838 0%, #444444 34%, #525252 60%, #606060 78%, #6a6a6a 92%, #707070 100%);
+  --win-vig: rgba(0, 0, 0, 0.26);
 
   /* glass panel (liquid glass over the animated backdrop) */
   --panel-rgb: 16, 16, 21;
   --surface-rgb: 21, 21, 27;
-  --glass-blur: 10px;
+  --glass-blur: 3px;
   --glass-tint: rgba(14, 14, 20, 0.5);
   --glass-high: rgba(255, 255, 255, 0.16);   /* glass edge/glare highlights */
   --glass-low: rgba(0, 0, 0, 0.28);          /* glass edge shadow */
@@ -83,13 +86,16 @@
   --online: #0a5c25;
   --warn: #8a4b00;
 
-  --puddle: 30, 30, 40;
-  --puddle-max: 0.3;
+  --puddle: 240, 242, 246;
+  --puddle-max: 0.32;
+  --cloud: 252, 252, 250;
+  --cloud-max: 0.45;
+  --bg-sky: linear-gradient(180deg, #d6d9d5 0%, #cbd2cc 42%, #bfc6be 68%, #b5b1a8 100%);
   --win-vig: rgba(0, 0, 0, 0.22);
 
   --panel-rgb: 212, 208, 200;
   --surface-rgb: 212, 208, 200;
-  --glass-blur: 10px;
+  --glass-blur: 3px;
   --glass-tint: rgba(244, 241, 234, 0.42);
   --glass-high: rgba(255, 255, 255, 0.5);
   --glass-low: rgba(80, 76, 70, 0.3);
@@ -149,7 +155,25 @@ a:hover {
   z-index: -1;
   pointer-events: none;
   overflow: hidden;
+  background: var(--bg-sky);
   box-shadow: inset 0 0 180px 70px var(--win-vig);
+}
+
+/* theme crossfade overlay (toggled by script.js) */
+#theme-fade {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  background: var(--bg);
+  transition: opacity 0.22s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #theme-fade {
+    transition: none;
+  }
 }
 
 /* full-screen canvas effect (drawn in script.js), soft edges via mask */
@@ -174,7 +198,7 @@ a:hover {
   box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
 }
 
-/* liquid-glass layer: blurs the animated backdrop and applies the SVG ripple */
+/* liquid-glass layer: blurs the animated backdrop (SVG ripple removed for perf) */
 .glass-ripple {
   position: absolute;
   inset: 0;
@@ -182,9 +206,7 @@ a:hover {
   pointer-events: none;
   backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
   -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
-  filter: url(#glass-distortion);
   overflow: hidden;
-  isolation: isolate;
 }
 
 /* tint + reflections + edge shine, painted above the ripple, below the content */
@@ -260,7 +282,7 @@ a:hover {
 .ticker {
   overflow: hidden;
   border-bottom: 1px solid var(--line);
-  background: rgba(var(--surface-rgb), 0.55);
+  background: rgba(var(--surface-rgb), 0.7);
   padding: 4px 0;
 }
 
@@ -306,9 +328,7 @@ a:hover {
 /* ---------- sidebar boxes (inactive-window style) ---------- */
 .box {
   border: 1px solid var(--line);
-  background: rgba(var(--surface-rgb), 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(var(--surface-rgb), 0.7);
 }
 
 .box-bar {
@@ -498,9 +518,7 @@ a:hover {
 .win {
   margin: 0 0 8px;
   border: 1px solid var(--line);
-  background: rgba(var(--surface-rgb), 0.55);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(var(--surface-rgb), 0.7);
 }
 
 .win:last-child {
