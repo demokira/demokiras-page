@@ -11,7 +11,6 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23808080'/%3E%3C/svg%3E" type="image/svg+xml">
 
   <!-- Set theme before first paint to avoid flash: manual override lasts one day, otherwise by device time (dark 20:00–07:00) -->
-  <!-- TEMPORARILY DISABLED: light theme only. Re-enable when theme switching is back.
   <script>
     (function () {
       document.documentElement.classList.add("js");
@@ -31,7 +30,6 @@
       document.documentElement.setAttribute("data-theme", t);
     })();
   </script>
-  -->
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -45,15 +43,16 @@
   <!-- crossfade cover for smooth theme switching -->
   <div id="theme-fade" aria-hidden="true"></div>
 
-  <!-- seamless looping backdrop: two layers with a soft crossfade at the loop point (sourced in script.js) -->
-  <div class="video-bg" aria-hidden="true">
-    <video class="video-layer" muted autoplay playsinline preload="auto"></video>
-    <video class="video-layer" muted playsinline preload="auto"></video>
+  <!-- animated backdrop: pure CSS — drifting win98 clouds, transform-only (no blur) -->
+  <div class="bg-fx" aria-hidden="true">
+    <i class="bg-blob bg-cloud-a"></i>
+    <i class="bg-blob bg-cloud-b"></i>
+    <i class="bg-blob bg-cloud-c"></i>
   </div>
 
   <div id="master">
 
-    <!-- glass panel layers: backdrop blur + tint/shine/reflections (pointer-events: none) -->
+    <!-- glass panel layers: tint/shine/reflections over the backdrop (pointer-events: none) -->
     <div class="glass-ripple" aria-hidden="true"></div>
     <div class="glass-tint" aria-hidden="true"></div>
 
@@ -67,7 +66,7 @@
           <span>Welcome to my personal page | My name is Sargis Dskhkunyan aka Demokira — a multidisciplinary creator. I create games, music, videos, AI-content, and much more! | Very soon everything will work here |&nbsp;</span>
         </div>
       </div>
-      <!-- <button id="theme-toggle" class="ticker-theme" type="button" aria-label="Switch color theme">◐</button> -->
+      <button id="theme-toggle" class="ticker-theme" type="button" aria-label="Switch color theme">◐</button>
     </div>
 
     <!-- ============ LAYOUT: SIDEBAR + MAIN ============ -->
@@ -76,7 +75,7 @@
       <!-- ------------ SIDEBAR ------------ -->
       <aside class="sidebar">
 
-        <div class="box">
+        <div class="box widget-social reveal">
           <div class="box-bar cap">Social Media</div>
           <div class="box-body">
             <ul class="sns-list">
@@ -90,7 +89,7 @@
           </div>
         </div>
 
-        <div class="box">
+        <div class="box widget-calendar reveal">
           <div class="box-bar cap">Calendar</div>
           <div class="box-body calendar-box">
             <p class="cal-month" id="cal-month"></p>
@@ -106,7 +105,7 @@
           </div>
         </div>
 
-        <div class="box">
+        <div class="box widget-donate reveal">
           <div class="box-bar cap">Donate <span class="box-bar-note">USDT/USDC ERC-20</span></div>
           <div class="box-body donate-body">
             <div class="wallet-row">
@@ -136,17 +135,17 @@
               <li class="release-card">
                 <h3 class="release-title">Selected works</h3>
                 <p class="release-meta"><span class="genre">playlist</span> </p>
-                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">listen ↗</a>
+                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">listen</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Demokira</h3>
                 <p class="release-meta"><span class="genre">album</span> </p>
-                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">listen ↗</a>
+                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">listen</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Rekuiemu Nikki OST</h3>
                 <p class="release-meta"><span class="genre">soundtrack</span> </p>
-                <a class="btn btn-small" href="https://soundcloud.com/demokira" target="_blank" rel="noopener">listen ↗</a>
+                <a class="btn btn-small" href="https://soundcloud.com/demokira" target="_blank" rel="noopener">listen</a>
               </li>
             </ul>
 
@@ -169,17 +168,17 @@
               <li class="release-card">
                 <h3 class="release-title">TV Show Or Die?</h3>
                 <p class="release-meta"><span class="genre">visual novel</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">play ↗</a>
+                <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">play</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">Soul of Akstama</h3>
                 <p class="release-meta"><span class="genre">visual novel</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">play ↗</a>
+                <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">play</a>
               </li>
               <li class="release-card">
                 <h3 class="release-title">16-bit (J)RPG Music Pack</h3>
                 <p class="release-meta"><span class="genre">asset pack</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/16-bit-jrpg-free-music-pack" target="_blank" rel="noopener">look it ↗</a>
+                <a class="btn btn-small" href="https://demokira.itch.io/16-bit-jrpg-free-music-pack" target="_blank" rel="noopener">look it</a>
               </li>
             </ul>
 

@@ -51,8 +51,8 @@
   --glass-high: rgba(255, 255, 255, 0.16);   /* glass edge/glare highlights */
   --glass-low: rgba(0, 0, 0, 0.28);          /* glass edge shadow */
 
-  /* video backdrop: blur + darken the montage so it reads as moody wallpaper in dark theme */
-  --video-filter: blur(32px) brightness(0.6) contrast(1.0) saturate(1.0);
+  /* animated backdrop: monochrome b/w gradient under the glass */
+  --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #191919 0%, #0d0d0d 42%, #050505 100%);
 
   /* title-bar gradient animates via winbar-shift */
   --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
@@ -86,7 +86,7 @@
   --glass-high: rgba(255, 255, 255, 0.5);
   --glass-low: rgba(80, 76, 70, 0.3);
 
-  --video-filter: blur(32px) brightness(1.0) saturate(1.00);
+  --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #bfd9d2 0%, #e4e0d3 45%, #d4cec0 100%);
 
   --titlebar: linear-gradient(90deg, #3a3a42, #54545c, #5f5f68, #54545c, #3a3a42);
   --titlebar-inactive: linear-gradient(90deg, #505058, #6a6a72, #76767f, #6a6a72, #505058);
@@ -153,27 +153,93 @@ a:hover {
   }
 }
 
-/* ---------- video backdrop (single seamless loop, two layers, crossfade) ---------- */
-.video-bg {
+/* ---------- animated backdrop (pure CSS: win98 clouds, no video) ---------- */
+/* perf: no filter/backdrop-filter — gradients are pre-softened, only transform animates */
+.bg-fx {
   position: fixed;
   inset: 0;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
+  background: var(--bg-fx-base);
 }
 
-.video-bg video {
+.bg-blob {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  filter: var(--video-filter);
+  display: block;
+  border-radius: 50%;
+  opacity: 0.3;
+  animation-name: bg-drift-a;
+  animation-duration: 32s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+  will-change: transform;
 }
 
-.video-bg video.is-active {
-  opacity: 1;
+.bg-cloud-a {
+  width: 58vmax;
+  height: 58vmax;
+  top: -14vmax;
+  left: -10vmax;
+  background: radial-gradient(circle, rgba(218, 222, 226, 0.5) 0%, rgba(218, 222, 226, 0) 58%);
+  animation-name: bg-drift-a;
+  animation-duration: 28s;
+}
+
+.bg-cloud-b {
+  width: 46vmax;
+  height: 46vmax;
+  top: 32%;
+  right: -12vmax;
+  background: radial-gradient(circle, rgba(128, 134, 142, 0.4) 0%, rgba(128, 134, 142, 0) 58%);
+  animation-name: bg-drift-b;
+  animation-duration: 24s;
+  animation-delay: -9s;
+}
+
+.bg-cloud-c {
+  width: 40vmax;
+  height: 40vmax;
+  bottom: -12vmax;
+  left: 20%;
+  background: radial-gradient(circle, rgba(156, 162, 170, 0.34) 0%, rgba(156, 162, 170, 0) 58%);
+  animation-name: bg-drift-c;
+  animation-duration: 34s;
+  animation-delay: -16s;
+}
+
+/* three distinct drift paths: wider travel + slow rotation so motion reads clearly */
+@keyframes bg-drift-a {
+  from { transform: translate3d(-6vmax, -4vmax, 0) scale(0.95) rotate(-4deg); }
+  to   { transform: translate3d(8vmax, 6vmax, 0) scale(1.18) rotate(5deg); }
+}
+
+@keyframes bg-drift-b {
+  from { transform: translate3d(6vmax, 4vmax, 0) scale(1.15) rotate(6deg); }
+  to   { transform: translate3d(-8vmax, -5vmax, 0) scale(0.92) rotate(-5deg); }
+}
+
+@keyframes bg-drift-c {
+  from { transform: translate3d(-5vmax, 6vmax, 0) scale(0.95); }
+  to   { transform: translate3d(7vmax, -6vmax, 0) scale(1.2); }
+}
+
+/* light theme: stronger accents so the backdrop stays visible on the light base */
+[data-theme="light"] .bg-blob {
+  opacity: 0.42;
+}
+
+[data-theme="light"] .bg-cloud-a {
+  background: radial-gradient(circle, rgba(120, 178, 178, 0.5) 0%, rgba(120, 178, 178, 0) 58%);
+}
+
+[data-theme="light"] .bg-cloud-b {
+  background: radial-gradient(circle, rgba(92, 158, 160, 0.45) 0%, rgba(92, 158, 160, 0) 58%);
+}
+
+[data-theme="light"] .bg-cloud-c {
+  background: radial-gradient(circle, rgba(112, 172, 148, 0.4) 0%, rgba(112, 172, 148, 0) 58%);
 }
 
 /* ---------- master container (fixed, centered, like an old homepage) ---------- */
@@ -842,8 +908,14 @@ html {
     flex: none;
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  /* mobile: only the donation widget, the other two are hidden */
+  .widget-social,
+  .widget-calendar {
+    display: none;
   }
 
   .content {
@@ -869,8 +941,8 @@ html {
     scroll-behavior: auto;
   }
 
-  .video-bg {
-    display: none;
+  .bg-blob {
+    animation: none;
   }
 
   .blink,

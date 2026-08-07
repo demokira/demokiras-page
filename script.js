@@ -17,7 +17,6 @@
   }
 
   /* ---------- theme: manual override lasts one day, otherwise by device time ---------- */
-  /* TEMPORARILY DISABLED: light theme only. Re-enable when theme switching is back.
   var DARK_FROM = 20;
   var DARK_TO = 7;
 
@@ -60,7 +59,6 @@
       }, 180);
     });
   }
-  */
 
   /* ---------- current year ---------- */
   var yearEl = document.getElementById("year");
@@ -146,7 +144,7 @@
     var minStr = hh + ":" + mm; // HH:MM
     if (minStr !== lastMinute) {
       lastMinute = minStr;
-      // applyTimeTheme(); // TEMPORARILY DISABLED: light theme only
+      applyTimeTheme();
     }
 
     var dateStr = d.toDateString();
@@ -185,83 +183,6 @@
         behavior: (mq && mq.matches) ? "auto" : "smooth"
       });
     });
-  }
-
-  /* ---------- video backdrop: single seamless loop (two layers, crossfade) ---------- */
-  // Silent Hill vibe: ethereal white mist drifting slowly in the dark
-  var BACKDROP_SRC = "https://assets.mixkit.co/videos/51947/51947-360.mp4";
-  var LOOP_LEAD = 0.9; // seconds before the end to start the crossfade swap
-  var PLAYBACK_RATE = 1; // playback speed; 0.5 = half speed slow motion
-
-  var bgLayers = document.querySelectorAll(".video-bg video");
-  if (bgLayers.length === 2 && !(window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
-    var videoLayers = [bgLayers[0], bgLayers[1]];
-    var activeLayer = 0;
-    var swapping = false;
-
-    function isReady(v) {
-      return !!v.readyState && v.readyState >= 2;
-    }
-
-    // apply the slow-motion rate to whichever layer is about to play
-    function applyRate(v) {
-      v.playbackRate = PLAYBACK_RATE;
-    }
-
-    // fade the standby layer in, pause + rewind the finished one, keep alternating
-    function swap() {
-      if (swapping) return;
-      var nextV = videoLayers[1 - activeLayer];
-      if (!isReady(nextV)) {
-        setTimeout(swap, 200);
-        return;
-      }
-      swapping = true;
-      var oldV = videoLayers[activeLayer];
-      applyRate(nextV);
-      nextV.currentTime = 0;
-      nextV.play().catch(function () {});
-      nextV.classList.add("is-active");
-      oldV.classList.remove("is-active");
-      activeLayer = 1 - activeLayer;
-      oldV.pause();
-      oldV.currentTime = 0;
-      setTimeout(function () { swapping = false; }, 400);
-    }
-
-    function onTick() {
-      var cur = videoLayers[activeLayer];
-      var dur = cur.duration;
-      if (dur && isFinite(dur) && dur > LOOP_LEAD && cur.currentTime >= dur - LOOP_LEAD) {
-        swap();
-      }
-    }
-
-    videoLayers.forEach(function (v) {
-      v.addEventListener("timeupdate", onTick);
-      v.addEventListener("ended", swap);
-    });
-
-    // standby layer: same source, seeked to the start so the first swap is instant
-    videoLayers[1].setAttribute("src", BACKDROP_SRC);
-    videoLayers[1].addEventListener("loadeddata", function () {
-      applyRate(videoLayers[1]);
-      videoLayers[1].currentTime = 0;
-    });
-    videoLayers[1].load();
-
-    // start playback once; canplay re-fires after seeks so make it one-shot
-    videoLayers[0].addEventListener(
-      "canplay",
-      function () {
-        applyRate(videoLayers[0]);
-        videoLayers[0].classList.add("is-active");
-        videoLayers[0].play().catch(function () {});
-      },
-      { once: true }
-    );
-    videoLayers[0].setAttribute("src", BACKDROP_SRC);
-    videoLayers[0].load();
   }
 
   /* ---------- copy wallet address ---------- */
