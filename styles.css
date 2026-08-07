@@ -52,7 +52,7 @@
   --glass-low: rgba(0, 0, 0, 0.28);          /* glass edge shadow */
 
   /* animated backdrop: monochrome b/w gradient under the glass */
-  --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #191919 0%, #0d0d0d 42%, #050505 100%);
+  --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #2b2b2b 0%, #181818 45%, #0c0c0c 100%);
 
   /* title-bar gradient animates via winbar-shift */
   --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
@@ -168,7 +168,7 @@ a:hover {
   position: absolute;
   display: block;
   border-radius: 50%;
-  opacity: 0.3;
+  opacity: 0.55;
   animation-name: bg-drift-a;
   animation-duration: 32s;
   animation-timing-function: ease-in-out;
@@ -182,7 +182,7 @@ a:hover {
   height: 58vmax;
   top: -14vmax;
   left: -10vmax;
-  background: radial-gradient(circle, rgba(218, 222, 226, 0.5) 0%, rgba(218, 222, 226, 0) 58%);
+  background: radial-gradient(circle, rgba(226, 230, 234, 0.55) 0%, rgba(226, 230, 234, 0) 58%);
   animation-name: bg-drift-a;
   animation-duration: 28s;
 }
@@ -192,7 +192,7 @@ a:hover {
   height: 46vmax;
   top: 32%;
   right: -12vmax;
-  background: radial-gradient(circle, rgba(128, 134, 142, 0.4) 0%, rgba(128, 134, 142, 0) 58%);
+  background: radial-gradient(circle, rgba(148, 154, 162, 0.45) 0%, rgba(148, 154, 162, 0) 58%);
   animation-name: bg-drift-b;
   animation-duration: 24s;
   animation-delay: -9s;
@@ -203,7 +203,7 @@ a:hover {
   height: 40vmax;
   bottom: -12vmax;
   left: 20%;
-  background: radial-gradient(circle, rgba(156, 162, 170, 0.34) 0%, rgba(156, 162, 170, 0) 58%);
+  background: radial-gradient(circle, rgba(170, 176, 184, 0.42) 0%, rgba(170, 176, 184, 0) 58%);
   animation-name: bg-drift-c;
   animation-duration: 34s;
   animation-delay: -16s;
