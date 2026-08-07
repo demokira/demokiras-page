@@ -29,7 +29,7 @@
   --font-mono: "Fixedsys", "Terminal", "Courier New", monospace;
   --font-pix: "Silkscreen", "Courier New", monospace;
 
-  --bg: #000000;
+  --bg: #090909;
   --panel: #101015;
   --surface: #15151b;
   --surface-2: #1c1c24;
@@ -41,24 +41,18 @@
   --acc-2: #909090;
 
   --heading: #e8eaee;
-  --online: #3ad46b;
   --warn: #e0a03a;
 
-  /* animated backdrop: clouds over the sea (drifting clouds + water shimmer) */
-  --puddle: 235, 235, 235;
-  --puddle-max: 0.18;
-  --cloud: 255, 255, 255;
-  --cloud-max: 0.16;
-  --bg-sky: linear-gradient(180deg, #383838 0%, #444444 34%, #525252 60%, #606060 78%, #6a6a6a 92%, #707070 100%);
-  --win-vig: rgba(0, 0, 0, 0.26);
-
-  /* glass panel (liquid glass over the animated backdrop) */
+  /* glass panel (liquid glass) */
   --panel-rgb: 16, 16, 21;
   --surface-rgb: 21, 21, 27;
   --glass-blur: 3px;
   --glass-tint: rgba(14, 14, 20, 0.5);
   --glass-high: rgba(255, 255, 255, 0.16);   /* glass edge/glare highlights */
   --glass-low: rgba(0, 0, 0, 0.28);          /* glass edge shadow */
+
+  /* video backdrop: blur + darken the montage so it reads as moody wallpaper in dark theme */
+  --video-filter: blur(32px) brightness(0.6) contrast(1.0) saturate(1.0);
 
   /* title-bar gradient animates via winbar-shift */
   --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
@@ -83,15 +77,7 @@
   --acc-2: #484848;
 
   --heading: #14161a;
-  --online: #0a5c25;
   --warn: #8a4b00;
-
-  --puddle: 240, 242, 246;
-  --puddle-max: 0.32;
-  --cloud: 252, 252, 250;
-  --cloud-max: 0.45;
-  --bg-sky: linear-gradient(180deg, #d6d9d5 0%, #cbd2cc 42%, #bfc6be 68%, #b5b1a8 100%);
-  --win-vig: rgba(0, 0, 0, 0.22);
 
   --panel-rgb: 212, 208, 200;
   --surface-rgb: 212, 208, 200;
@@ -99,6 +85,8 @@
   --glass-tint: rgba(244, 241, 234, 0.42);
   --glass-high: rgba(255, 255, 255, 0.5);
   --glass-low: rgba(80, 76, 70, 0.3);
+
+  --video-filter: blur(32px) brightness(1.0) saturate(1.00);
 
   --titlebar: linear-gradient(90deg, #3a3a42, #54545c, #5f5f68, #54545c, #3a3a42);
   --titlebar-inactive: linear-gradient(90deg, #505058, #6a6a72, #76767f, #6a6a72, #505058);
@@ -148,17 +136,6 @@ a:hover {
   outline-offset: 1px;
 }
 
-/* ---------- animated win95 backdrop: shimmering puddles ---------- */
-.winbg {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  overflow: hidden;
-  background: var(--bg-sky);
-  box-shadow: inset 0 0 180px 70px var(--win-vig);
-}
-
 /* theme crossfade overlay (toggled by script.js) */
 #theme-fade {
   position: fixed;
@@ -176,16 +153,27 @@ a:hover {
   }
 }
 
-/* full-screen canvas effect (drawn in script.js), soft edges via mask */
-.fx-bg {
-  position: absolute;
+/* ---------- video backdrop (single seamless loop, two layers, crossfade) ---------- */
+.video-bg {
+  position: fixed;
   inset: 0;
-  mask-image: radial-gradient(ellipse 135% 120% at 50% 45%, #000 50%, transparent 100%);
-  -webkit-mask-image: radial-gradient(ellipse 135% 120% at 50% 45%, #000 50%, transparent 100%);
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.fx-bg canvas {
-  display: block;
+.video-bg video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  filter: var(--video-filter);
+}
+
+.video-bg video.is-active {
+  opacity: 1;
 }
 
 /* ---------- master container (fixed, centered, like an old homepage) ---------- */
@@ -204,8 +192,6 @@ a:hover {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.15);
   overflow: hidden;
 }
 
@@ -233,56 +219,18 @@ a:hover {
   z-index: 2;
 }
 
-/* ---------- menu (row of classic buttons) ---------- */
-.menu {
-  display: flex;
-  border-bottom: 1px solid var(--line);
-  background: var(--ctl-face);
-}
-
-.menubutton {
-  flex: 1;
-  padding: 7px 0 6px;
-  font-family: var(--font-body);
-  font-weight: 700;
-  font-size: 12px;
-  text-align: center;
-  text-decoration: none;
-  color: var(--ctl-text);
-  background: var(--ctl-face);
-  border: 0;
-  cursor: pointer;
-  box-shadow:
-    inset -1px -1px #0a0a0a,
-    inset 1px 1px #ffffff,
-    inset -2px -2px #808080,
-    inset 2px 2px #dfdfdf;
-}
-
-.menubutton:hover {
-  text-decoration: underline;
-}
-
-.menubutton:active {
-  box-shadow:
-    inset 1px 1px #0a0a0a,
-    inset -1px -1px #ffffff,
-    inset 2px 2px #808080,
-    inset -2px -2px #dfdfdf;
-  padding: 8px 0 5px;
-}
-
-.theme-toggle {
-  flex: 0 0 44px;
-  font-size: 13px;
-  line-height: 1.2;
-}
-
-/* ---------- ticker ---------- */
+/* ---------- ticker + theme toggle (beveled button, right edge of the strip) ---------- */
 .ticker {
-  overflow: hidden;
+  display: flex;
+  align-items: stretch;
   border-bottom: 1px solid var(--line);
   background: rgba(var(--surface-rgb), 0.7);
+}
+
+.ticker-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
   padding: 4px 0;
 }
 
@@ -295,8 +243,39 @@ a:hover {
   animation: ticker 40s linear infinite;
 }
 
-.ticker:hover .ticker-track {
+.ticker-wrap:hover .ticker-track {
   animation-play-state: paused;
+}
+
+.ticker-theme {
+  flex: 0 0 40px;
+  padding: 0;
+  border: 0;
+  border-left: 1px solid var(--line);
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--ctl-text);
+  background: var(--ctl-face);
+  cursor: pointer;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #ffffff,
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+
+.ticker-theme:hover {
+  text-decoration: underline;
+}
+
+.ticker-theme:active {
+  box-shadow:
+    inset 1px 1px #0a0a0a,
+    inset -1px -1px #ffffff,
+    inset 2px 2px #808080,
+    inset -2px -2px #dfdfdf;
 }
 
 @keyframes ticker {
@@ -434,33 +413,6 @@ a:hover {
     inset 2px 2px #808080,
     inset -2px -2px #dfdfdf;
   transform: translate(1px, 1px);
-}
-
-.stats-body {
-  text-align: center;
-}
-
-.stat-line {
-  margin: 2px 0;
-  font-size: 11px;
-  color: var(--muted);
-}
-
-.counter {
-  margin: 2px 0 6px;
-  font-family: var(--font-mono);
-  font-size: 15px;
-  color: var(--muted);
-}
-
-.online {
-  color: var(--online);
-}
-
-.rule {
-  border: 0;
-  border-top: 1px dashed var(--line);
-  margin: 6px 0;
 }
 
 /* ---------- calendar + clock ---------- */
@@ -729,41 +681,6 @@ a:hover {
   100% { background-position: 200% 0%; }
 }
 
-/* ---------- about ---------- */
-.about-cols {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-.about-bio p {
-  margin: 0 0 8px;
-}
-
-.about-facts {
-  margin: 10px 0 0;
-  padding: 0;
-  list-style: none;
-  font-family: var(--font-mono);
-  font-size: 12px;
-}
-
-.about-facts li {
-  padding: 3px 0;
-  border-top: 1px dashed var(--line);
-}
-
-.fact-key {
-  display: inline-block;
-  min-width: 62px;
-  color: var(--acc);
-}
-
-.fact-key::after {
-  content: " :";
-  color: var(--muted);
-}
-
 /* ---------- footer ---------- */
 .site-footer {
   padding: 12px 16px 16px;
@@ -916,18 +833,6 @@ html {
     box-shadow: none;
   }
 
-  .menu {
-    flex-wrap: wrap;
-  }
-
-  .menubutton {
-    flex: 1 1 33%;
-  }
-
-  .theme-toggle {
-    flex: 1 1 33%;
-  }
-
   .layout {
     flex-direction: column;
   }
@@ -946,10 +851,6 @@ html {
     width: 100%;
   }
 
-  .about-cols {
-    grid-template-columns: 1fr;
-  }
-
   .post {
     grid-template-columns: 1fr;
     gap: 2px;
@@ -966,6 +867,10 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .video-bg {
+    display: none;
   }
 
   .blink,

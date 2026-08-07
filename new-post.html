@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>demokira — post maker</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23808080'/%3E%3C/svg%3E" type="image/svg+xml">
+<style>
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif.woff2") format("woff2"),
+       url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Pixelated MS Sans Serif";
+  src: url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif_bold.woff2") format("woff2"),
+       url("https://unpkg.com/98.css@0.1.20/dist/ms_sans_serif_bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+:root {
+  --font-body: "Pixelated MS Sans Serif", "MS Sans Serif", Tahoma, Arial, sans-serif;
+  --font-mono: "Fixedsys", "Terminal", "Courier New", monospace;
+  --font-pix: "Silkscreen", "Courier New", monospace;
+  --bg: #000000;
+  --panel: #101015;
+  --surface: #15151b;
+  --surface-2: #1c1c24;
+  --text: #e6e6ea;
+  --muted: #8a8a96;
+  --line: #3c3c46;
+  --acc: #b0b0b0;
+  --acc-2: #909090;
+  --heading: #e8eaee;
+  --warn: #e0a03a;
+  --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
+  --titlebar-text: #000000;
+  --ctl-face: #c0c0c0;
+  --ctl-text: #000000;
+}
+*,
+*::before,
+*::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 1.55;
+  -webkit-font-smoothing: none;
+}
+a { color: var(--acc); text-underline-offset: 2px; }
+a:hover { color: var(--acc-2); }
+:focus-visible { outline: 2px dotted var(--acc); outline-offset: 1px; }
+
+#master {
+  max-width: 720px;
+  margin: 14px auto 24px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
+}
+.topbar {
+  padding: 6px 10px;
+  background: var(--titlebar);
+  background-size: 200% 100%;
+  color: var(--titlebar-text);
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: lowercase;
+  border-bottom: 1px solid var(--line);
+  animation: winbar-shift 3s linear infinite;
+}
+@keyframes winbar-shift {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.win { margin: 8px; border: 1px solid var(--line); background: var(--surface); }
+.win-bar {
+  padding: 2px 4px 2px 8px;
+  background: var(--titlebar);
+  background-size: 200% 100%;
+  border-bottom: 1px solid var(--line);
+  animation: winbar-shift 3s linear infinite;
+}
+.win-title { font-weight: 700; font-size: 11px; color: var(--titlebar-text); }
+.win-body { padding: 12px 14px 14px; }
+
+.field { display: block; margin-bottom: 10px; }
+.field-label { display: block; margin-bottom: 2px; font-size: 11px; color: var(--muted); }
+.field input,
+.field textarea {
+  width: 100%;
+  padding: 4px 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: #000;
+  background: #fff;
+  border: 0;
+  box-shadow:
+    inset -1px -1px #ffffff,
+    inset 1px 1px #808080,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px #0a0a0a;
+  resize: vertical;
+}
+.field input:focus,
+.field textarea:focus { outline: 1px dotted #000; outline-offset: -4px; }
+.row2 { display: flex; gap: 10px; }
+.row2 .field { flex: 1; }
+.check { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; cursor: pointer; }
+.check input { width: 14px; height: 14px; margin: 0; }
+
+.link-row { display: flex; gap: 6px; margin-bottom: 6px; }
+.link-row .link-label { flex: 1; }
+.link-row .link-url { flex: 2; }
+.link-row input {
+  padding: 3px 6px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #000;
+  background: #fff;
+  border: 0;
+  box-shadow:
+    inset -1px -1px #ffffff,
+    inset 1px 1px #808080,
+    inset -2px -2px #dfdfdf,
+    inset 2px 2px #0a0a0a;
+}
+
+.btn {
+  display: inline-block;
+  padding: 5px 14px;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 12px;
+  text-decoration: none;
+  color: var(--ctl-text);
+  background: var(--ctl-face);
+  border: 0;
+  cursor: pointer;
+  box-shadow:
+    inset -1px -1px #0a0a0a,
+    inset 1px 1px #ffffff,
+    inset -2px -2px #808080,
+    inset 2px 2px #dfdfdf;
+}
+.btn:hover { text-decoration: underline; }
+.btn:active {
+  box-shadow:
+    inset 1px 1px #0a0a0a,
+    inset -1px -1px #ffffff,
+    inset 2px 2px #808080,
+    inset -2px -2px #dfdfdf;
+  transform: translate(1px, 1px);
+}
+.btn-small { padding: 3px 10px; font-size: 11px; }
+.actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.post-list { margin: 0; padding: 0; list-style: none; }
+.post {
+  display: grid;
+  grid-template-columns: 84px 1fr;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px dashed var(--line);
+}
+.post:last-child { border-bottom: 1px dashed var(--line); }
+.post-date { font-family: var(--font-mono); font-size: 11px; color: var(--muted); padding-top: 1px; }
+.post-title { margin: 0 0 3px; font-size: 12px; font-weight: 700; }
+.post-body p { margin: 0; font-size: 11px; color: var(--muted); }
+.tag-new {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 3px 1px;
+  font-family: var(--font-pix);
+  font-weight: 400;
+  font-size: 7px;
+  letter-spacing: 1px;
+  color: #000;
+  background: #00cc44;
+  vertical-align: middle;
+  text-transform: lowercase;
+}
+.blink { animation: blink 1.2s step-start infinite; }
+@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+.snippet {
+  margin: 0 0 10px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 220px;
+  overflow: auto;
+}
+.status { margin: 8px 0 0; font-family: var(--font-mono); font-size: 11px; color: var(--acc); min-height: 1.2em; }
+.status.error { color: var(--warn); }
+.hint { margin: 0 0 10px; font-size: 11px; color: var(--muted); }
+
+.fallback { display: none; }
+.fallback.show { display: block; }
+.fallback textarea {
+  width: 100%;
+  height: 260px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--line);
+  resize: vertical;
+}
+@media (max-width: 560px) {
+  .row2 { flex-direction: column; gap: 0; }
+  .post { grid-template-columns: 1fr; gap: 2px; }
+}
+</style>
+</head>
+<body>
+<div id="master">
+
+  <div class="topbar">demokira — post maker</div>
+
+  <section class="win">
+    <div class="win-bar"><span class="win-title">1 · compose</span></div>
+    <div class="win-body">
+
+      <label class="field">
+        <span class="field-label">Title</span>
+        <input type="text" id="post-title" autocomplete="off" placeholder="Post headline">
+      </label>
+
+      <div class="row2">
+        <label class="field">
+          <span class="field-label">Date</span>
+          <input type="date" id="post-date">
+        </label>
+        <label class="field">
+          <span class="field-label">Tag</span>
+          <label class="check" style="margin-top:18px">
+            <input type="checkbox" id="post-new" checked>
+            <span>mark as new!</span>
+          </label>
+        </label>
+      </div>
+
+      <label class="field">
+        <span class="field-label">Body (blank line separates paragraphs)</span>
+        <textarea id="post-body" rows="6" placeholder="First paragraph.&#10;&#10;Second paragraph."></textarea>
+      </label>
+
+      <label class="field">
+        <span class="field-label">Links (optional)</span>
+        <div id="link-rows"></div>
+        <button type="button" class="btn btn-small" id="add-link">+ add link</button>
+      </label>
+
+    </div>
+  </section>
+
+  <section class="win">
+    <div class="win-bar"><span class="win-title">2 · preview</span></div>
+    <div class="win-body">
+      <ol class="post-list" id="preview"></ol>
+    </div>
+  </section>
+
+  <section class="win">
+    <div class="win-bar"><span class="win-title">3 · output</span></div>
+    <div class="win-body">
+      <p class="hint" id="hint">Snippet is ready to paste into index.html inside the Blog section — or use the insert button.</p>
+      <pre class="snippet" id="snippet"></pre>
+      <div class="actions">
+        <button type="button" class="btn" id="copy-btn">copy snippet</button>
+        <button type="button" class="btn" id="insert-btn">insert into index.html</button>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+      <div class="fallback" id="fallback">
+        <p class="hint">Your browser can't write the file directly. Copy the whole updated index.html below and paste it over the old file.</p>
+        <textarea id="fallback-html" spellcheck="false"></textarea>
+        <div class="actions" style="margin-top:8px">
+          <button type="button" class="btn" id="fallback-copy">copy all</button>
+        </div>
+      </div>
+
+      <input type="file" id="file-input" accept=".html,.htm,text/html" style="display:none">
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var titleIn = document.getElementById("post-title");
+  var dateIn = document.getElementById("post-date");
+  var bodyIn = document.getElementById("post-body");
+  var newChk = document.getElementById("post-new");
+  var linksBox = document.getElementById("link-rows");
+  var addLinkBtn = document.getElementById("add-link");
+  var preview = document.getElementById("preview");
+  var snippetEl = document.getElementById("snippet");
+  var copyBtn = document.getElementById("copy-btn");
+  var insertBtn = document.getElementById("insert-btn");
+  var statusEl = document.getElementById("status");
+  var fallback = document.getElementById("fallback");
+  var fallbackHtml = document.getElementById("fallback-html");
+  var fallbackCopy = document.getElementById("fallback-copy");
+  var fileInput = document.getElementById("file-input");
+  var hint = document.getElementById("hint");
+
+  dateIn.value = new Date().toISOString().slice(0, 10);
+
+  function esc(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+  }
+
+  function setStatus(msg, isError) {
+    statusEl.classList.toggle("error", !!isError);
+    statusEl.textContent = msg;
+  }
+
+  function normalizeUrl(u) {
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(u)) return "https://" + u;
+    return u;
+  }
+
+  function gatherLinks(strict) {
+    var out = [];
+    var rows = linksBox.querySelectorAll(".link-row");
+    for (var i = 0; i < rows.length; i++) {
+      var label = rows[i].querySelector(".link-label").value.trim();
+      var url = rows[i].querySelector(".link-url").value.trim();
+      if (!url && !label) continue;
+      if (!url) {
+        if (strict) throw new Error("link \"" + label + "\" has no url");
+        continue;
+      }
+      out.push({ label: label || url, url: normalizeUrl(url) });
+    }
+    return out;
+  }
+
+  function buildSnippet(strict) {
+    var title = titleIn.value.trim();
+    var date = dateIn.value.trim() || new Date().toISOString().slice(0, 10);
+    var markNew = newChk.checked;
+    var paras = bodyIn.value.split(/\n\s*\n/).map(function (p) { return p.trim(); }).filter(Boolean);
+    var links = gatherLinks(strict);
+
+    var lines = [];
+    lines.push('<li class="post">');
+    lines.push('  <time class="post-date" datetime="' + esc(date) + '">' + esc(date) + '</time>');
+    lines.push('  <div class="post-body">');
+    lines.push('    <h3 class="post-title">' + esc(title) +
+      (markNew ? ' <span class="tag-new blink">new!</span>' : '') + '</h3>');
+    for (var i = 0; i < paras.length; i++) {
+      lines.push('    <p>' + esc(paras[i]) + '</p>');
+    }
+    if (links.length) {
+      var parts = [];
+      for (var j = 0; j < links.length; j++) {
+        parts.push('<a href="' + esc(links[j].url) + '" target="_blank" rel="noopener">' +
+          esc(links[j].label) + ' ↗</a>');
+      }
+      lines.push('    <p>' + parts.join(' · ') + '</p>');
+    }
+    lines.push('  </div>');
+    lines.push('</li>');
+    return lines.join("\n");
+  }
+
+  function validate() {
+    if (!titleIn.value.trim()) throw new Error("title is required");
+  }
+
+  function render() {
+    var snippet = buildSnippet(false);
+    snippetEl.textContent = snippet;
+    preview.innerHTML = snippet;
+  }
+
+  function copyText(text, done) {
+    function legacy() {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand("copy"); } catch (e) {}
+      document.body.removeChild(ta);
+      done(ok);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, legacy);
+    } else {
+      legacy();
+    }
+  }
+
+  function insertIntoHtml(html, snippet) {
+    html = html.replace(/\s*<span class="tag-new blink">new!<\/span>/g, "");
+    var marker = '<ol class="post-list">';
+    var idx = html.indexOf(marker);
+    if (idx === -1) throw new Error("index.html doesn't contain the blog list");
+    var indent = "              ";
+    var block = snippet.split("\n").map(function (l) { return indent + l; }).join("\n");
+    return html.slice(0, idx + marker.length) + "\n" + block + html.slice(idx + marker.length);
+  }
+
+  function addLinkRow(label, url) {
+    var row = document.createElement("div");
+    row.className = "link-row";
+    var labelInput = document.createElement("input");
+    labelInput.type = "text";
+    labelInput.className = "link-label";
+    labelInput.placeholder = "label";
+    labelInput.value = label || "";
+    var urlInput = document.createElement("input");
+    urlInput.type = "text";
+    urlInput.className = "link-url";
+    urlInput.placeholder = "https://…";
+    urlInput.value = url || "";
+    var rm = document.createElement("button");
+    rm.type = "button";
+    rm.className = "btn btn-small link-remove";
+    rm.textContent = "✕";
+    rm.addEventListener("click", function () { row.remove(); render(); });
+    row.appendChild(labelInput);
+    row.appendChild(urlInput);
+    row.appendChild(rm);
+    linksBox.appendChild(row);
+  }
+
+  addLinkBtn.addEventListener("click", function () { addLinkRow("", ""); });
+
+  titleIn.addEventListener("input", render);
+  bodyIn.addEventListener("input", render);
+  dateIn.addEventListener("input", render);
+  newChk.addEventListener("change", render);
+  linksBox.addEventListener("input", render);
+  linksBox.addEventListener("change", render);
+
+  copyBtn.addEventListener("click", function () {
+    try {
+      validate();
+      var snippet = buildSnippet(true);
+      copyText(snippet, function (ok) {
+        setStatus(ok ? "copied — paste it into index.html" : "couldn't copy automatically, select the snippet and copy manually", !ok);
+      });
+    } catch (e) {
+      setStatus(e.message, true);
+    }
+  });
+
+  function showFallback(updatedHtml) {
+    fallback.classList.add("show");
+    fallbackHtml.value = updatedHtml;
+    hint.textContent = "";
+    setStatus("manual save needed — copy the whole file below", false);
+  }
+
+  fallbackCopy.addEventListener("click", function () {
+    copyText(fallbackHtml.value, function (ok) {
+      setStatus(ok ? "copied — now paste it over index.html" : "couldn't copy automatically", !ok);
+    });
+  });
+
+  function insertFromContent(content) {
+    var snippet = buildSnippet(true);
+    return insertIntoHtml(content, snippet);
+  }
+
+  insertBtn.addEventListener("click", function () {
+    try {
+      validate();
+    } catch (e) {
+      setStatus(e.message, true);
+      return;
+    }
+
+    if (!("showOpenFilePicker" in window)) {
+      setStatus("select index.html…", false);
+      fileInput.value = "";
+      fileInput.onchange = function () {
+        var f = fileInput.files[0];
+        if (!f) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            showFallback(insertFromContent(reader.result));
+          } catch (e) {
+            setStatus(e.message, true);
+          }
+        };
+        reader.readAsText(f, "utf-8");
+      };
+      fileInput.click();
+      return;
+    }
+
+    window.showOpenFilePicker({
+      types: [{ description: "HTML", accept: { "text/html": [".html", ".htm"] } }]
+    }).then(function (handles) {
+      var handle = handles[0];
+      return handle.getFile().then(function (file) { return file.text(); }).then(function (html) {
+        var updated = insertFromContent(html);
+        return handle.createWritable().then(function (w) {
+          return w.write(updated).then(function () { return w.close(); });
+        });
+      });
+    }).then(function () {
+      setStatus("done — post inserted, index.html saved ✓", false);
+    }).catch(function (err) {
+      if (err && err.name === "AbortError") {
+        setStatus("cancelled", false);
+        return;
+      }
+      if (err && (err.name === "NotAllowedError" || err.name === "SecurityError" || err.name === "TypeError")) {
+        setStatus("direct save unavailable — switch to manual mode", false);
+        fileInput.value = "";
+        fileInput.onchange = function () {
+          var f = fileInput.files[0];
+          if (!f) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            try {
+              showFallback(insertFromContent(reader.result));
+            } catch (e2) {
+              setStatus(e2.message, true);
+            }
+          };
+          reader.readAsText(f, "utf-8");
+        };
+        fileInput.click();
+        return;
+      }
+      setStatus(err.message || "something went wrong", true);
+    });
+  });
+
+  addLinkRow("", "");
+  render();
+})();
+</script>
+</body>
+</html>
