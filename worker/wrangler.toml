@@ -1,0 +1,7 @@
+name = "dk-counter"
+main = "index.js"
+compatibility_date = "2026-08-08"
+
+[[kv_namespaces]]
+binding = "COUNTER"
+id = "0035838526074b3d9e127687c783971c"

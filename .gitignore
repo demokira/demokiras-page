@@ -1,2 +1,5 @@
 # local tool for writing devlog posts (not published)
 new-post.html
+
+# wrangler local cache (account ids, temp state) — never commit
+worker/.wrangler/

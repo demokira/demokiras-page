@@ -219,4 +219,13 @@
     }
   });
 
+  /* ---------- visitor counter ---------- */
+  var counterEl = document.getElementById("visitor-count");
+  if (counterEl) {
+    fetch("https://dk-counter.demokira.workers.dev/counter")
+      .then(function (r) { return r.ok ? r.text() : Promise.reject(r.status); })
+      .then(function (t) { counterEl.textContent = t; })
+      .catch(function () {});
+  }
+
 })();

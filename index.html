@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>sargis the creator</title>
-  <meta name="description" content="">
-  <meta property="og:title" content="">
-  <meta property="og:description" content="">
+  <meta name="description" content="Demokira — personal old-web page. Games, music, videos, AI-content and more.">
+  <meta property="og:title" content="sargis the creator — Demokira">
+  <meta property="og:description" content="Games, music, videos, AI-content and more.">
   <meta property="og:type" content="website">
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%23808080'/%3E%3C/svg%3E" type="image/svg+xml">
+  <link rel="icon" href="assets/icon.jpg?v=20260911" type="image/jpeg">
 
   <!-- Set theme before first paint to avoid flash: manual override lasts one day, otherwise by device time (dark 20:00–07:00) -->
   <script>
@@ -35,24 +35,23 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=20260807">
-  <script src="script.js?v=20260807" defer></script>
+  <link rel="stylesheet" href="styles.css?v=20260911">
+  <script src="script.js?v=20260911" defer></script>
 
-  <!-- Yandex.Metrika counter -->
-  <script type="text/javascript">
-    (function(m,e,t,r,i,k,a){
-        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-        m[i].l=1*new Date();
-        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-    })(window, document,'script','https://mc.yandex.ru/metrika/tag.js?id=111408606', 'ym');
-
-    ym(111408606, 'init', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});
-  </script>
-  <noscript><div><img src="https://mc.yandex.ru/watch/111408606" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-  <!-- /Yandex.Metrika counter -->
+  <!-- Google Tag Manager -->
+  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+  })(window,document,'script','dataLayer','GTM-W3PHDJ8S');</script>
+  <!-- End Google Tag Manager -->
 </head>
 <body>
+
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-W3PHDJ8S"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
 
   <!-- crossfade cover for smooth theme switching -->
   <div id="theme-fade" aria-hidden="true"></div>
@@ -62,6 +61,10 @@
     <i class="bg-blob bg-cloud-a"></i>
     <i class="bg-blob bg-cloud-b"></i>
     <i class="bg-blob bg-cloud-c"></i>
+    <i class="bg-blob bg-cloud-d"></i>
+    <i class="bg-blob bg-cloud-e"></i>
+    <i class="bg-blob bg-cloud-f"></i>
+    <i class="bg-blob bg-cloud-g"></i>
   </div>
 
   <div id="master">
@@ -119,6 +122,13 @@
           </div>
         </div>
 
+        <div class="box widget-counter reveal">
+          <div class="box-bar cap">Visitors</div>
+          <div class="box-body counter-body">
+            <span id="visitor-count" class="visitor-count">0000000</span>
+          </div>
+        </div>
+
         <div class="box widget-donate reveal">
           <div class="box-bar cap">Donate <span class="box-bar-note">USDT/USDC ERC-20</span></div>
           <div class="box-body donate-body">
@@ -147,19 +157,37 @@
 
             <ul class="release-grid">
               <li class="release-card">
-                <h3 class="release-title">Selected works</h3>
-                <p class="release-meta"><span class="genre">playlist</span> </p>
-                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">listen</a>
+                <img class="release-cover" src="assets/cover-best-of.jpg" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">Selected works</h3>
+                  <p class="release-meta"><span class="genre">playlist</span></p>
+                  <p class="release-desc">A playlist featuring my favorite tracks from 2023 and 2024.</p>
+                  <a class="btn btn-small" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener">listen</a>
+                </div>
               </li>
               <li class="release-card">
-                <h3 class="release-title">Demokira</h3>
-                <p class="release-meta"><span class="genre">album</span> </p>
-                <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">listen</a>
+                <img class="release-cover" src="assets/cover-demokira.jpg" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">Demokira</h3>
+                  <p class="release-meta"><span class="genre">album</span></p>
+                  <p class="release-desc">An experimental ambient album focusing on a dark sound and unusual textures.</p>
+                  <a class="btn btn-small" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener">listen</a>
+                </div>
               </li>
               <li class="release-card">
-                <h3 class="release-title">Rekuiemu Nikki OST</h3>
-                <p class="release-meta"><span class="genre">soundtrack</span> </p>
-                <a class="btn btn-small" href="https://soundcloud.com/demokira" target="_blank" rel="noopener">listen</a>
+                <img class="release-cover" src="assets/cover-rekuiemu-ost.jpg" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">Rekuiemu Nikki OST</h3>
+                  <p class="release-meta"><span class="genre">soundtrack</span></p>
+                  <p class="release-desc">A soundtrack inspired by the original Yume Nikki.</p>
+                  <a class="btn btn-small" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" target="_blank" rel="noopener">listen</a>
+                </div>
               </li>
             </ul>
 
@@ -175,24 +203,42 @@
           <div class="win-body">
             <h2 id="games-heading" class="section-title">Games</h2>
             <p class="section-lede">
-              Short narrative games from me.
+              Short narrative games from me, as well as other game jam projects.
             </p>
 
             <ul class="release-grid">
               <li class="release-card">
-                <h3 class="release-title">TV Show Or Die?</h3>
-                <p class="release-meta"><span class="genre">visual novel</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">play</a>
+                <img class="release-cover" src="https://img.itch.zone/aW1nLzE0NDUwODU3LnBuZw==/original/%2B7VAML.png" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">TV Show Or Die?</h3>
+                  <p class="release-meta"><span class="genre">visual novel</span></p>
+                  <p class="release-desc">A short visual novel about a guy who gets into trouble for money.</p>
+                  <a class="btn btn-small" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener">play</a>
+                </div>
               </li>
               <li class="release-card">
-                <h3 class="release-title">Soul of Akstama</h3>
-                <p class="release-meta"><span class="genre">visual novel</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">play</a>
+                <img class="release-cover" src="https://img.itch.zone/aW1nLzEzMTYwNzk3LmpwZw==/original/zpYj%2Ft.jpg" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">Soul of Akstama</h3>
+                  <p class="release-meta"><span class="genre">visual novel</span></p>
+                  <p class="release-desc">A very short visual novel that tells the story of a mirror located in Akstama Castle.</p>
+                  <a class="btn btn-small" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener">play</a>
+                </div>
               </li>
               <li class="release-card">
-                <h3 class="release-title">16-bit (J)RPG Music Pack</h3>
-                <p class="release-meta"><span class="genre">asset pack</span>  </p>
-                <a class="btn btn-small" href="https://demokira.itch.io/16-bit-jrpg-free-music-pack" target="_blank" rel="noopener">look it</a>
+                <img class="release-cover" src="assets/cover-reknikki.png" alt="" aria-hidden="true" loading="lazy" onerror="this.style.display='none'">
+                <div class="release-shade" aria-hidden="true"></div>
+                <div class="release-scan" aria-hidden="true"></div>
+                <div class="release-info">
+                  <h3 class="release-title">Rekuiemu Nikki</h3>
+                  <p class="release-meta"><span class="genre">surreal adventure</span></p>
+                  <p class="release-desc">A Yume Nikki fangame, about exploring the mind of young Julie.</p>
+                  <a class="btn btn-small" href="https://eklsn.itch.io/reknikki" target="_blank" rel="noopener">play</a>
+                </div>
               </li>
             </ul>
 
@@ -227,13 +273,7 @@
 
     <!-- ============ FOOTER ============ -->
     <footer class="site-footer">
-      <div class="footer-left">
-        <a href="https://metrika.yandex.ru/stat/?id=111408606" target="_blank" rel="noopener">
-          <img src="https://informer.yandex.ru/informer/111408606/3_1_FFFFFFFF_EFEFEFFF_0_uniques" style="width:88px; height:31px; border:0;" alt="Yandex.Metrika" title="Yandex.Metrika: today's views, visits and unique visitors" />
-        </a>
-      </div>
       <p class="footer-copy">love and be loved © <span id="year">2026</span> demokira</p>
-      <div class="footer-right" aria-hidden="true"></div>
     </footer>
 
     </div><!-- /glass-content -->
