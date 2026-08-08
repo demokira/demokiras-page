@@ -912,9 +912,9 @@ html {
     align-items: start;
   }
 
-  /* mobile: only the donation widget, the other two are hidden */
-  .widget-social,
-  .widget-calendar {
+  /* mobile: social + donation widgets shown, calendar & metrika hidden */
+  .widget-calendar,
+  .widget-metrika {
     display: none;
   }
 
