@@ -749,9 +749,24 @@ a:hover {
 
 /* ---------- footer ---------- */
 .site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   padding: 12px 16px 16px;
   border-top: 1px solid var(--line);
   text-align: center;
+}
+
+.footer-left,
+.footer-right {
+  flex: 1;
+  min-width: 0;
+}
+
+.footer-left {
+  display: flex;
+  justify-content: flex-start;
 }
 
 .footer-copy {
@@ -912,9 +927,8 @@ html {
     align-items: start;
   }
 
-  /* mobile: social + donation widgets shown, calendar & metrika hidden */
-  .widget-calendar,
-  .widget-metrika {
+  /* mobile: social + donation widgets shown, calendar hidden */
+  .widget-calendar {
     display: none;
   }
 
