@@ -50,9 +50,10 @@
   /* animated backdrop: monochrome b/w gradient under the glass */
   --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #2b2b2b 0%, #181818 45%, #0c0c0c 100%);
 
-  /* title-bar gradient (static — animating background-position caused per-frame repaints) */
-  --titlebar: linear-gradient(90deg, #8a8a93, #b4b4bd, #d6d6de, #b4b4bd, #8a8a93);
-  --titlebar-inactive: linear-gradient(90deg, #76767f, #9a9aa3, #b6b6bf, #9a9aa3, #76767f);
+  /* title-bar gradient (bright blue). base is static; the "shimmer" is a transform-only
+     ::after overlay, so it never triggers per-frame repaints */
+  --titlebar: linear-gradient(90deg, #29b6f6, #4fc3f7, #b3e5fc, #4fc3f7, #29b6f6);
+  --titlebar-inactive: linear-gradient(90deg, #4a5a68, #5c6f80, #70859a, #5c6f80, #4a5a68);
   --titlebar-text: #000000;
 
   /* classic silver control */
@@ -80,8 +81,8 @@
 
   --bg-fx-base: radial-gradient(130% 140% at 22% 14%, #bfd9d2 0%, #e4e0d3 45%, #d4cec0 100%);
 
-  --titlebar: linear-gradient(90deg, #3a3a42, #54545c, #5f5f68, #54545c, #3a3a42);
-  --titlebar-inactive: linear-gradient(90deg, #505058, #6a6a72, #76767f, #6a6a72, #505058);
+  --titlebar: linear-gradient(90deg, #1565c0, #1e88e5, #42a5f5, #1e88e5, #1565c0);
+  --titlebar-inactive: linear-gradient(90deg, #455a64, #546e7a, #607d8b, #546e7a, #455a64);
   --titlebar-text: #f0f0f4;
 }
 
@@ -468,6 +469,8 @@ a:hover {
 }
 
 .box-bar {
+  position: relative;
+  overflow: hidden;
   display: flex;
   align-items: center;
   padding: 2px 8px 3px;
@@ -633,9 +636,29 @@ a:hover {
 }
 
 .win-bar {
+  position: relative;
+  overflow: hidden;
   padding: 2px 4px 2px 8px;
   background: var(--titlebar);
   border-bottom: 1px solid var(--line);
+}
+
+/* shimmering highlight that travels across the title bar.
+   transform-only (translateX) — composited, zero repaints, unlike background-position */
+.win-bar::after,
+.box-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 22%, transparent 44%);
+  transform: translateX(-100%);
+  animation: winbar-shift 3.2s linear infinite;
+}
+
+@keyframes winbar-shift {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
 }
 
 .win-title {
@@ -1220,6 +1243,11 @@ html {
   .sidebar {
     grid-template-columns: 1fr;
   }
+
+  .win-bar::after,
+  .box-bar::after {
+    animation: none;
+  }
 }
 
 /* ---------- reduced motion ---------- */
@@ -1234,6 +1262,11 @@ html {
 
   .blink,
   .ticker-track {
+    animation: none;
+  }
+
+  .win-bar::after,
+  .box-bar::after {
     animation: none;
   }
 
