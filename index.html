@@ -3,12 +3,53 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>sargis the creator</title>
-  <meta name="description" content="Demokira — personal old-web page. Games, music, videos, AI-content and more.">
-  <meta property="og:title" content="sargis the creator — Demokira">
-  <meta property="og:description" content="Games, music, videos, AI-content and more.">
+  <title>Demokira — indie games, music, videos and AI content</title>
+  <meta name="description" content="Demokira — the old-web page of Sargis Dskhkunyan. Short indie games, ambient music, videos, AI content and a dev blog.">
+  <meta property="og:title" content="Demokira — indie games, music, videos and AI content">
+  <meta property="og:description" content="Short indie games, ambient music, videos, AI content and a dev blog by Sargis Dskhkunyan aka Demokira.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://sargis.space/">
+  <meta property="og:site_name" content="Demokira">
+  <meta property="og:image" content="https://sargis.space/assets/og-image.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Demokira — indie games, music, videos and AI content">
+  <meta name="twitter:description" content="Short indie games, ambient music, videos, AI content and a dev blog by Sargis Dskhkunyan aka Demokira.">
+  <meta name="twitter:image" content="https://sargis.space/assets/og-image.jpg">
+  <link rel="canonical" href="https://sargis.space/">
   <link rel="icon" href="assets/icon.jpg?v=20260810" type="image/jpeg">
+  <link rel="apple-touch-icon" href="assets/icon.jpg?v=20260810">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://sargis.space/#person",
+        "name": "Sargis Dskhkunyan",
+        "alternateName": "Demokira",
+        "url": "https://sargis.space/",
+        "email": "mailto:sargis.dshkhunyan@gmail.com",
+        "image": "https://sargis.space/assets/icon.jpg",
+        "sameAs": [
+          "https://www.youtube.com/@demokira",
+          "https://demokira.itch.io",
+          "https://demokira.bandcamp.com",
+          "https://www.tiktok.com/@demokira",
+          "https://www.instagram.com/srgsdshkhnn"
+        ]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://sargis.space/#website",
+        "url": "https://sargis.space/",
+        "name": "Demokira",
+        "inLanguage": "en",
+        "publisher": { "@id": "https://sargis.space/#person" }
+      }
+    ]
+  }
+  </script>
 
   <!-- Set theme before first paint to avoid flash: manual override lasts one day, otherwise by device time (dark 20:00–07:00) -->
   <script>
@@ -35,7 +76,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400&display=swap" rel="stylesheet">
 
-  <link rel="stylesheet" href="styles.css?v=20260816">
+  <link rel="stylesheet" href="styles.css?v=20260817">
   <script src="script.js?v=20260810" defer></script>
 
   <!-- Google Tag Manager -->
@@ -79,8 +120,8 @@
     <div class="ticker" aria-label="News ticker">
       <div class="ticker-wrap">
         <div class="ticker-track" aria-hidden="true">
-          <span>Welcome to my personal page | My name is Sargis Dskhkunyan aka Demokira — a multidisciplinary creator. I create games, music, videos, AI-content, and much more! |&nbsp;</span>
-          <span>Welcome to my personal page | My name is Sargis Dskhkunyan aka Demokira — a multidisciplinary creator. I create games, music, videos, AI-content, and much more! |&nbsp;</span>
+          <span>Welcome to my personal page | My name is Sargis Dskhkunyan aka Demokira — a multidisciplinary creator. I create games, music, videos, AI content, and much more! |&nbsp;</span>
+          <span>Welcome to my personal page | My name is Sargis Dskhkunyan aka Demokira — a multidisciplinary creator. I create games, music, videos, AI content, and much more! |&nbsp;</span>
         </div>
       </div>
       <button id="theme-toggle" class="ticker-theme" type="button" aria-label="Switch color theme">◐</button>
@@ -143,6 +184,19 @@
 
       <!-- ------------ MAIN ------------ -->
       <main class="content">
+
+        <!-- INTRO -->
+        <header class="win page-intro reveal" aria-labelledby="site-title">
+          <div class="win-bar">
+            <span class="win-title">Home</span>
+          </div>
+          <div class="win-body">
+            <h1 id="site-title" class="section-title">Demokira</h1>
+            <p class="section-lede">
+              Hi, I'm Sargis Dskhkunyan aka Demokira — a multidisciplinary creator making short indie games, ambient music, videos and AI content.
+            </p>
+          </div>
+        </header>
 
         <!-- MUSIC -->
         <section id="music" class="win reveal" aria-labelledby="music-heading">

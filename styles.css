@@ -700,6 +700,10 @@ a:hover {
   margin: 0 0 14px;
 }
 
+.page-intro { margin: 0 0 16px; }
+.page-intro .section-title { margin-bottom: 10px; }
+.page-intro .section-lede { margin: 0; max-width: 560px; }
+
 .mono-note {
   margin: 14px 0 0;
   font-family: var(--font-mono);
