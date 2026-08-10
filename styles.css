@@ -60,6 +60,10 @@
   /* classic silver control */
   --ctl-face: #c0c0c0;
   --ctl-text: #000000;
+
+  /* elevated card shadow — the dark bg is near-black, so the drop shadow is
+     paired with a soft rim light to stay visible */
+  --card-shadow: 0 8px 20px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 16px rgba(150, 165, 215, 0.2);
 }
 
 [data-theme="light"] {
@@ -86,6 +90,8 @@
   --titlebar-text: #f0f0f4;
 
   --cal-today: #5e93c2;
+
+  --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
 
 /* ---------- reset / base ---------- */
@@ -767,7 +773,7 @@ a:hover {
   background: var(--surface);
   transform: translateY(-2px);
   box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.35),
+    var(--card-shadow),
     inset -1px -1px #0a0a0a,
     inset 1px 1px #ffffff,
     inset -2px -2px #808080,
@@ -1105,19 +1111,24 @@ html {
   }
 }
 
-/* touch devices have no hover — show the gray fill and silver buttons */
+/* mobile: a tap fires :hover/:focus-within/:active on the card, so the
+   reveal styles below already match the desktop hover experience — the
+   :active selector gives immediate feedback while the finger is down */
 @media (hover: none) {
-  .release-card {
+  .release-card:active,
+  .release-card:focus-within {
     background: var(--surface);
+    transform: translateY(-2px);
     box-shadow:
-      0 4px 12px rgba(0, 0, 0, 0.25),
+      var(--card-shadow),
       inset -1px -1px #0a0a0a,
       inset 1px 1px #ffffff,
       inset -2px -2px #808080,
       inset 2px 2px #dfdfdf;
   }
 
-  .release-card .btn {
+  .release-card:active .btn,
+  .release-card:focus-within .btn {
     background: var(--ctl-face);
     color: var(--ctl-text);
     box-shadow:
@@ -1157,6 +1168,7 @@ html {
   }
 
   .release-card:hover,
+  .release-card:active,
   .release-card:focus-within {
     transform: none;
   }
