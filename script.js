@@ -35,7 +35,7 @@
       }
     };
 
-    fetch(mobile ? "/assets/world/scene-01-mobile.mp4" : "/assets/world/scene-01.mp4")
+    fetch(mobile ? "assets/world/scene-01-mobile.mp4" : "assets/world/scene-01.mp4")
       .then(function (response) {
         if (!response.ok) throw new Error("clip " + response.status);
         return response.blob();

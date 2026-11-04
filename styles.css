@@ -329,7 +329,7 @@ html {
   z-index: 74;
   inset: 0;
   content: "";
-  background-image: url("/assets/noise.png");
+  background-image: url("assets/noise.png");
   background-size: 240px 240px;
   mix-blend-mode: overlay;
   opacity: 0.4;
@@ -975,33 +975,33 @@ html {
 }
 
 .foot__icon--youtube {
-  -webkit-mask-image: url("/icons/youtube.svg");
-  mask-image: url("/icons/youtube.svg");
+  -webkit-mask-image: url("icons/youtube.svg");
+  mask-image: url("icons/youtube.svg");
 }
 
 .foot__icon--itchdotio {
-  -webkit-mask-image: url("/icons/itchdotio.svg");
-  mask-image: url("/icons/itchdotio.svg");
+  -webkit-mask-image: url("icons/itchdotio.svg");
+  mask-image: url("icons/itchdotio.svg");
 }
 
 .foot__icon--bandcamp {
-  -webkit-mask-image: url("/icons/bandcamp.svg");
-  mask-image: url("/icons/bandcamp.svg");
+  -webkit-mask-image: url("icons/bandcamp.svg");
+  mask-image: url("icons/bandcamp.svg");
 }
 
 .foot__icon--tiktok {
-  -webkit-mask-image: url("/icons/tiktok.svg");
-  mask-image: url("/icons/tiktok.svg");
+  -webkit-mask-image: url("icons/tiktok.svg");
+  mask-image: url("icons/tiktok.svg");
 }
 
 .foot__icon--instagram {
-  -webkit-mask-image: url("/icons/instagram.svg");
-  mask-image: url("/icons/instagram.svg");
+  -webkit-mask-image: url("icons/instagram.svg");
+  mask-image: url("icons/instagram.svg");
 }
 
 .foot__icon--email {
-  -webkit-mask-image: url("/icons/email.svg");
-  mask-image: url("/icons/email.svg");
+  -webkit-mask-image: url("icons/email.svg");
+  mask-image: url("icons/email.svg");
 }
 
 .foot__bottom {
