@@ -100,8 +100,11 @@
       userReady = true;
       prime();
     };
-    window.addEventListener("touchstart", onFirstGesture, { once: true, passive: true });
-    window.addEventListener("pointerdown", onFirstGesture, { once: true, passive: true });
+    // not { once: true }: the first touch often lands before the clip is ready,
+    // so keep trying on every touch until play() succeeds.
+    window.addEventListener("touchstart", onFirstGesture, { passive: true });
+    window.addEventListener("touchend", onFirstGesture, { passive: true });
+    window.addEventListener("pointerdown", onFirstGesture, { passive: true });
 
     var ticking = false;
     var onScroll = function () {
