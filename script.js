@@ -9,7 +9,7 @@
   if (root && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
     var layer = root.querySelector(".scroll-scrub__layer");
     var mobile = window.matchMedia("(hover: none) and (pointer: coarse), (max-width: 860px)").matches;
-    var clip = mobile ? "assets/world/scene-01-mobile.mp4" : "assets/world/scene-01.mp4";
+    var clip = mobile ? "assets/world/scene-02-mobile.mp4" : "assets/world/scene-02.mp4";
     var video = document.createElement("video");
     var objectUrl = null;
     var userReady = false;
@@ -27,14 +27,18 @@
 
     var targetProgress = 0;
     var currentProgress = 0;
+    var scrollProgress = 0;
     var rafId = 0;
     var running = false;
+    var idleTime = 0;
+    var lastTime = 0;
+    var heroVisible = true;
 
     var applyProgress = function () {
       root.style.setProperty("--ss-progress", String(currentProgress));
       if (video.readyState >= 1 && video.duration) {
         var time = currentProgress * (video.duration - 0.05);
-        if (Math.abs(video.currentTime - time) > 0.02) {
+        if (Math.abs(video.currentTime - time) > 0.012) {
           try {
             video.currentTime = time;
           } catch (error) {
@@ -45,27 +49,51 @@
     };
 
     var tick = function () {
+      var now = performance.now();
+      var dt = lastTime ? Math.min(0.05, (now - lastTime) / 1000) : 0.016;
+      lastTime = now;
+
+      // At the two ends the film keeps a slow, tiny drift instead of freezing.
+      var atStart = heroVisible && scrollProgress <= 0.0008;
+      var atEnd = heroVisible && scrollProgress >= 0.9992;
+      if (atStart) {
+        idleTime += dt;
+        targetProgress = 0.006 - 0.006 * Math.cos(idleTime * 1.1);
+      } else if (atEnd) {
+        idleTime += dt;
+        targetProgress = 1 - (0.006 - 0.006 * Math.cos(idleTime * 1.1));
+      } else {
+        idleTime = 0;
+        targetProgress = scrollProgress;
+      }
+
       var diff = targetProgress - currentProgress;
       currentProgress += diff * 0.1;
-      if (Math.abs(diff) < 0.0008) currentProgress = targetProgress;
+      if (Math.abs(diff) < 0.0006 && !atStart && !atEnd) {
+        currentProgress = targetProgress;
+      }
       applyProgress();
-      if (Math.abs(targetProgress - currentProgress) > 0.00001) {
+
+      if (atStart || atEnd || Math.abs(targetProgress - currentProgress) > 0.00001) {
         rafId = window.requestAnimationFrame(tick);
       } else {
         running = false;
+        lastTime = 0;
       }
     };
 
     var kick = function () {
       if (running) return;
       running = true;
+      lastTime = performance.now();
       rafId = window.requestAnimationFrame(tick);
     };
 
     var readScroll = function () {
       var rect = root.getBoundingClientRect();
       var total = Math.max(root.offsetHeight - window.innerHeight, 1);
-      targetProgress = Math.min(Math.max(-rect.top / total, 0), 1);
+      scrollProgress = Math.min(Math.max(-rect.top / total, 0), 1);
+      heroVisible = rect.bottom > 0 && rect.top < window.innerHeight;
       kick();
     };
 

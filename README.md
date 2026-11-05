@@ -18,7 +18,7 @@
 
 - Тексты и ссылки: `index.html`
 - Обложки: заменить файл с тем же именем в `assets/covers/`
-- Фильм: `assets/world/scene-01.mp4` (десктоп) и `scene-01-mobile.mp4` (телефон).
+- Фильм: `assets/world/scene-02.mp4` (десктоп) и `scene-02-mobile.mp4` (телефон).
   Постеры должны быть первыми кадрами клипов.
 - Кошелёк: блок `foot__wallet` в конце `index.html`
 
