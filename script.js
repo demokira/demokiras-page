@@ -1,190 +1,199 @@
 (function () {
   "use strict";
 
-  // Scroll-scrub film: the scroll position drives a CRT signal clip.
-  // The clip is fetched as a blob first so seeking works on any static host,
-  // even one without HTTP range support. iOS Safari also needs the video to be
-  // primed by a real touch before it will paint seeked frames, hence prime().
-  var root = document.querySelector(".scroll-scrub");
-  if (root && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    var layer = root.querySelector(".scroll-scrub__layer");
-    var mobile = window.matchMedia("(hover: none) and (pointer: coarse), (max-width: 860px)").matches;
-    var clip = mobile ? "assets/world/scene-02-mobile.mp4" : "assets/world/scene-02.mp4";
-    var video = document.createElement("video");
-    var objectUrl = null;
-    var userReady = false;
-    var primed = false;
-
-    video.className = "scroll-scrub__video";
-    video.muted = true;
-    video.playsInline = true;
-    video.preload = "auto";
-    video.controls = false;
-    video.setAttribute("muted", "");
-    video.setAttribute("playsinline", "");
-    video.setAttribute("webkit-playsinline", "");
-    video.setAttribute("disablepictureinpicture", "");
-
-    var targetProgress = 0;
-    var currentProgress = 0;
-    var scrollProgress = 0;
+  // Hero: a procedural 3D wireframe grid receding into darkness.
+  // The scroll drives the camera forward; at the ends the grid keeps a slow
+  // idle drift so the motion never freezes.
+  var canvas = document.querySelector(".grid-field");
+  if (canvas && canvas.getContext) {
+    var ctx = canvas.getContext("2d");
+    var root = canvas.closest(".scroll-scrub");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var width = 0;
+    var height = 0;
+    var dpr = 1;
+    var target = 0;
+    var current = 0;
+    var idle = 0;
+    var idleAmp = 0;
+    var time = 0;
+    var last = 0;
     var rafId = 0;
     var running = false;
-    var idleTime = 0;
-    var lastTime = 0;
-    var heroVisible = true;
+    var visible = true;
+    var bgGrad = null;
+    var glow = null;
 
-    var applyProgress = function () {
-      root.style.setProperty("--ss-progress", String(currentProgress));
-      if (video.readyState >= 1 && video.duration) {
-        var time = currentProgress * (video.duration - 0.05);
-        if (Math.abs(video.currentTime - time) > 0.012) {
-          try {
-            video.currentTime = time;
-          } catch (error) {
-            // keep the last painted frame while the browser catches up
+    var clamp = function (value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    };
+
+    var buildGradients = function () {
+      var horizon = height * 0.54;
+      bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+      bgGrad.addColorStop(0, "#0b0b0a");
+      bgGrad.addColorStop(0.5, "#111110");
+      bgGrad.addColorStop(1, "#070707");
+      glow = ctx.createRadialGradient(width * 0.5, horizon, 0, width * 0.5, horizon, height * 0.62);
+      glow.addColorStop(0, "rgba(236,232,223,0.13)");
+      glow.addColorStop(0.45, "rgba(236,232,223,0.04)");
+      glow.addColorStop(1, "rgba(0,0,0,0)");
+    };
+
+    var shape = function (z) {
+      var bendX = Math.sin(z * 0.11) * 0.75 + Math.sin(z * 0.04 + 1.3) * 0.35;
+      var bendY = Math.cos(z * 0.08) * 0.2;
+      var halfW = 2.7;
+      var halfH = 1.45;
+      var points = [];
+      var i;
+      for (i = 0; i <= 6; i += 1) {
+        points.push([-halfW + (i * halfW * 2) / 6 + bendX, halfH + bendY]);
+      }
+      for (i = 1; i <= 4; i += 1) {
+        points.push([halfW + bendX, halfH - (i * halfH * 2) / 4 + bendY]);
+      }
+      for (i = 1; i <= 6; i += 1) {
+        points.push([halfW - (i * halfW * 2) / 6 + bendX, -halfH + bendY]);
+      }
+      for (i = 1; i <= 4; i += 1) {
+        points.push([-halfW + bendX, -halfH + (i * halfH * 2) / 4 + bendY]);
+      }
+      return points;
+    };
+
+    var project = function (x, y, z) {
+      var focal = height * 0.95;
+      var scale = focal / z;
+      return [width * 0.52 + x * scale, height * 0.5 - y * scale];
+    };
+
+    var draw = function () {
+      if (!width || !height) return;
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = bgGrad;
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+
+      var camera = current * 30 + idle;
+      var near = 0.55;
+      var far = 30;
+      var spacing = 0.55;
+      var offset = ((camera % spacing) + spacing) % spacing;
+      var z;
+      var i;
+      var p;
+
+      // longitudinal rails
+      for (i = 0; i < 20; i += 1) {
+        ctx.beginPath();
+        for (z = near; z <= far; z += 0.55) {
+          p = shape(z)[i];
+          var q = project(p[0], p[1], z);
+          if (z === near) {
+            ctx.moveTo(q[0], q[1]);
+          } else {
+            ctx.lineTo(q[0], q[1]);
           }
         }
+        ctx.strokeStyle = "rgba(236,232,223,0.10)";
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      }
+
+      // rings coming toward the camera
+      for (i = 0; i < 54; i += 1) {
+        z = near + i * spacing - offset;
+        if (z < near) continue;
+        var fade = 1 - (z - near) / (far - near);
+        if (fade < 0) fade = 0;
+        var points = shape(z);
+        ctx.beginPath();
+        for (var k = 0; k < points.length; k += 1) {
+          var r = project(points[k][0], points[k][1], z);
+          if (k === 0) {
+            ctx.moveTo(r[0], r[1]);
+          } else {
+            ctx.lineTo(r[0], r[1]);
+          }
+        }
+        ctx.closePath();
+        var weight = 0.035 + 0.22 * fade;
+        if (i % 6 === 0) weight += 0.1;
+        ctx.strokeStyle = "rgba(236,232,223," + weight.toFixed(3) + ")";
+        ctx.lineWidth = i % 6 === 0 ? 1.2 : 1;
+        ctx.stroke();
       }
     };
 
-    var tick = function () {
-      var now = performance.now();
-      var dt = lastTime ? Math.min(0.05, (now - lastTime) / 1000) : 0.016;
-      lastTime = now;
+    var resize = function () {
+      var rect = canvas.getBoundingClientRect();
+      width = Math.max(1, rect.width);
+      height = Math.max(1, rect.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      buildGradients();
+      draw();
+    };
 
-      // At the two ends the film keeps a slow, tiny drift instead of freezing.
-      var atStart = heroVisible && scrollProgress <= 0.0008;
-      var atEnd = heroVisible && scrollProgress >= 0.9992;
-      if (atStart) {
-        idleTime += dt;
-        targetProgress = 0.006 - 0.006 * Math.cos(idleTime * 1.1);
-      } else if (atEnd) {
-        idleTime += dt;
-        targetProgress = 1 - (0.006 - 0.006 * Math.cos(idleTime * 1.1));
-      } else {
-        idleTime = 0;
-        targetProgress = scrollProgress;
-      }
+    var loop = function (now) {
+      var dt = last ? Math.min(0.05, (now - last) / 1000) : 0.016;
+      last = now;
+      current += (target - current) * 0.08;
 
-      var diff = targetProgress - currentProgress;
-      currentProgress += diff * 0.1;
-      if (Math.abs(diff) < 0.0006 && !atStart && !atEnd) {
-        currentProgress = targetProgress;
-      }
-      applyProgress();
+      var atEdge = visible && (target <= 0.001 || target >= 0.999);
+      idleAmp += ((atEdge ? 1 : 0) - idleAmp) * 0.04;
+      time += dt;
+      idle = Math.sin(time * 0.7) * 0.9 * idleAmp;
 
-      if (atStart || atEnd || Math.abs(targetProgress - currentProgress) > 0.00001) {
-        rafId = window.requestAnimationFrame(tick);
+      if (root) root.style.setProperty("--ss-progress", String(current));
+      draw();
+
+      if (visible) {
+        rafId = window.requestAnimationFrame(loop);
       } else {
         running = false;
-        lastTime = 0;
+        last = 0;
       }
-    };
-
-    var kick = function () {
-      if (running) return;
-      running = true;
-      lastTime = performance.now();
-      rafId = window.requestAnimationFrame(tick);
     };
 
     var readScroll = function () {
+      if (!root) return;
       var rect = root.getBoundingClientRect();
       var total = Math.max(root.offsetHeight - window.innerHeight, 1);
-      scrollProgress = Math.min(Math.max(-rect.top / total, 0), 1);
-      heroVisible = rect.bottom > 0 && rect.top < window.innerHeight;
-      kick();
-    };
+      target = clamp(-rect.top / total, 0, 1);
+      visible = rect.bottom > 0 && rect.top < window.innerHeight;
 
-    var prime = function () {
-      if (primed || !video.src) return;
-      primed = true;
-      var played = video.play();
-      if (played && typeof played.then === "function") {
-        played
-          .then(function () {
-            try {
-              video.pause();
-            } catch (error) {}
-            applyProgress();
-          })
-          .catch(function () {
-            primed = false;
-          });
-      } else {
-        try {
-          video.pause();
-        } catch (error) {}
-        applyProgress();
+      if (reduce) {
+        current = target;
+        idleAmp = 0;
+        idle = 0;
+        if (root) root.style.setProperty("--ss-progress", String(current));
+        draw();
+        return;
+      }
+      if (!running) {
+        running = true;
+        last = performance.now();
+        rafId = window.requestAnimationFrame(loop);
       }
     };
 
-    var attach = function () {
-      video.addEventListener("loadedmetadata", function () {
-        readScroll();
-        applyProgress();
-      });
-      video.addEventListener("loadeddata", function () {
-        layer.dataset.videoPainted = "true";
-        readScroll();
-        applyProgress();
-        if (userReady) prime();
-      });
-      video.addEventListener("canplay", readScroll);
-      video.addEventListener("seeked", function () {
-        layer.dataset.videoPainted = "true";
-      });
-      layer.appendChild(video);
-      readScroll();
-      applyProgress();
-    };
-
-    fetch(clip)
-      .then(function (response) {
-        if (!response.ok) throw new Error("clip " + response.status);
-        return response.blob();
-      })
-      .then(function (blob) {
-        objectUrl = URL.createObjectURL(blob);
-        video.src = objectUrl;
-        attach();
-      })
-      .catch(function () {
-        // no blob support or network hiccup: fall back to direct source
-        video.src = clip;
-        attach();
-      });
-
-    var onFirstGesture = function () {
-      userReady = true;
-      prime();
-    };
-    // not { once: true }: the first touch often lands before the clip is ready,
-    // so keep trying on every touch until play() succeeds.
-    window.addEventListener("touchstart", onFirstGesture, { passive: true });
-    window.addEventListener("touchend", onFirstGesture, { passive: true });
-    window.addEventListener("pointerdown", onFirstGesture, { passive: true });
-
-    var ticking = false;
-    var onScroll = function () {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(function () {
-        ticking = false;
-        readScroll();
-      });
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("touchmove", onScroll, { passive: true });
+    resize();
+    readScroll();
+    window.addEventListener("scroll", readScroll, { passive: true });
+    window.addEventListener("touchmove", readScroll, { passive: true });
     window.addEventListener("touchend", readScroll, { passive: true });
-    window.addEventListener("resize", readScroll);
+    window.addEventListener("resize", function () {
+      resize();
+      readScroll();
+    });
     window.addEventListener("pagehide", function () {
       if (rafId) window.cancelAnimationFrame(rafId);
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
     });
-    readScroll();
-    applyProgress();
   }
 
   // copy the wallet key
