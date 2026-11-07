@@ -430,7 +430,7 @@ html {
   border-bottom: 1px solid var(--line);
 }
 
-.grid-field {
+.scope-field {
   position: absolute;
   inset: 0;
   display: block;
