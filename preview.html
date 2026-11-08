@@ -1,0 +1,1786 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — indie games, music, videos and AI content</title>
+<meta name="description" content="Short indie games, experimental music, videos, AI content and a dev blog by Sargis Dskhkunyan aka Demokira.">
+<meta name="theme-color" content="#0b0b0a">
+<meta property="og:title" content="Demokira — indie games, music, videos and AI content">
+<meta property="og:description" content="Short indie games, experimental music, videos, AI content and a dev blog by Sargis Dskhkunyan aka Demokira.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://sargis.space/">
+<meta property="og:site_name" content="Demokira">
+<meta property="og:image" content="https://sargis.space/assets/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://sargis.space/assets/og.png">
+<link rel="canonical" href="https://sargis.space/">
+<link rel="icon" href="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/icon.png">
+<link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/apple-touch-icon.png">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { background: #0b0b0a; }
+body { background: #0b0b0a; color: #ece8df; }
+h1, h2, h3, p, figure, blockquote { margin: 0; }
+ul, ol { margin: 0; padding: 0; list-style: none; }
+img { max-width: 100%; }
+a { color: inherit; }
+button { font: inherit; }
+::selection { background: #ece8df; color: #0b0b0a; }
+
+.scroll-scrub {
+  --ss-progress: 0;
+  position: relative;
+  isolation: isolate;
+  color: var(--ss-ink);
+  background: var(--ss-bg);
+}
+
+.scroll-scrub__stage {
+  position: sticky;
+  top: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--ss-bg);
+}
+
+.scroll-scrub__media,
+.scroll-scrub__layer,
+.scroll-scrub__picture,
+.scroll-scrub__poster,
+.scroll-scrub__video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.scroll-scrub__media {
+  z-index: 0;
+}
+
+.scroll-scrub__layer {
+  margin: 0;
+  overflow: hidden;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.scroll-scrub__layer:first-child {
+  opacity: 1;
+}
+
+.scroll-scrub__poster,
+.scroll-scrub__video {
+  display: block;
+  object-fit: cover;
+  object-position: var(--ss-object-position);
+}
+
+.scroll-scrub__poster {
+  z-index: 0;
+}
+
+.scroll-scrub__video {
+  z-index: 1;
+}
+
+.scroll-scrub__layer[data-video-painted="true"] .scroll-scrub__poster {
+  visibility: hidden;
+}
+
+.scroll-scrub__progress {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: color-mix(in srgb, var(--ss-ink) 14%, transparent);
+  pointer-events: none;
+}
+
+.scroll-scrub__progress span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--ss-accent);
+  transform: scaleX(var(--ss-progress));
+  transform-origin: left center;
+}
+
+.scroll-scrub__route {
+  position: absolute;
+  z-index: 6;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 4vw, 4rem);
+  left: clamp(1rem, 4vw, 4rem);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.25rem;
+  pointer-events: auto;
+}
+
+.scroll-scrub__route-button {
+  min-height: 2.75rem;
+  padding: 0.65rem 0.9rem;
+  border: 0;
+  color: var(--ss-muted);
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.scroll-scrub__route-button:hover,
+.scroll-scrub__route-button[aria-current="step"] {
+  color: var(--ss-ink);
+}
+
+.scroll-scrub__route-button[aria-current="step"] {
+  text-decoration: underline;
+  text-decoration-color: var(--ss-accent);
+  text-decoration-thickness: 0.15em;
+  text-underline-offset: 0.3em;
+}
+
+.scroll-scrub__route-button:focus-visible {
+  outline: 2px solid var(--ss-accent);
+  outline-offset: 3px;
+}
+
+.scroll-scrub__story {
+  position: relative;
+  z-index: 3;
+  margin-top: -100dvh;
+  pointer-events: none;
+}
+
+.scroll-scrub__chapter,
+.scroll-scrub__connector-band {
+  position: relative;
+}
+
+.scroll-scrub__chapter-pin {
+  position: sticky;
+  top: 0;
+  display: flex;
+  align-items: center;
+  min-height: 100dvh;
+  padding: clamp(5rem, 9vw, 8rem) clamp(1.25rem, 6vw, 6rem);
+  pointer-events: none;
+}
+
+.scroll-scrub__chapter[data-align="right"] .scroll-scrub__chapter-pin {
+  justify-content: flex-end;
+}
+
+.scroll-scrub__copy {
+  position: relative;
+  width: min(40rem, 48vw);
+  pointer-events: auto;
+}
+
+.scroll-scrub__copy::before {
+  position: absolute;
+  z-index: -1;
+  inset: -3rem -5rem;
+  content: "";
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--ss-bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--ss-bg) 58%, transparent) 52%,
+    transparent 76%
+  );
+  pointer-events: none;
+}
+
+.scroll-scrub__kicker {
+  max-width: 30ch;
+  margin: 0 0 1rem;
+  color: var(--ss-accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.scroll-scrub__title {
+  max-width: 13ch;
+  margin: 0;
+  color: var(--ss-ink);
+  font: inherit;
+  font-size: clamp(2.75rem, 6vw, 6.75rem);
+  font-weight: 700;
+  line-height: 0.94;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+
+.scroll-scrub__body {
+  max-width: 42ch;
+  margin: 1.5rem 0 0;
+  color: var(--ss-muted);
+  font-size: clamp(1rem, 1.35vw, 1.2rem);
+  line-height: 1.55;
+}
+
+.scroll-scrub__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scroll-scrub__tags li {
+  padding: 0.45rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--ss-ink) 20%, transparent);
+  color: var(--ss-ink);
+  font-size: 0.82rem;
+}
+
+.scroll-scrub__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+@media (max-width: 860px) {
+  .scroll-scrub__poster,
+  .scroll-scrub__video {
+    object-position: var(--ss-mobile-position);
+  }
+
+  .scroll-scrub__route {
+    right: max(0.75rem, env(safe-area-inset-right));
+    left: max(0.75rem, env(safe-area-inset-left));
+    justify-content: flex-start;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .scroll-scrub__route-button {
+    flex: 0 0 auto;
+  }
+
+  .scroll-scrub__chapter-pin,
+  .scroll-scrub__chapter[data-align="right"] .scroll-scrub__chapter-pin {
+    align-items: flex-end;
+    justify-content: flex-start;
+    padding: 6.5rem max(1.25rem, env(safe-area-inset-right))
+      calc(4rem + env(safe-area-inset-bottom))
+      max(1.25rem, env(safe-area-inset-left));
+  }
+
+  .scroll-scrub__copy {
+    width: min(100%, 36rem);
+  }
+
+  .scroll-scrub__copy::before {
+    inset: -3rem -2rem;
+    background: linear-gradient(
+      to top,
+      var(--ss-bg) 0%,
+      color-mix(in srgb, var(--ss-bg) 82%, transparent) 58%,
+      transparent 100%
+    );
+  }
+
+  .scroll-scrub__title {
+    max-width: 14ch;
+    font-size: clamp(2.3rem, 11vw, 4.5rem);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scroll-scrub__chapter {
+    min-height: 100dvh !important;
+  }
+
+  .scroll-scrub__connector-band {
+    display: none;
+  }
+
+  .scroll-scrub__progress span {
+    transition: none;
+  }
+}
+
+
+/* ==========================================================================
+   DEMOKIRA — pirate signal. Custom token layer, no framework utilities.
+   ========================================================================== */
+
+html {
+  scroll-behavior: smooth;
+  background: #0b0b0a;
+}
+
+.dk {
+  --ink: #0b0b0a;
+  --paper: #ece8df;
+  --chalk: #f2efe6;
+  --ash: #8f8d86;
+  --smoke: #a8a49b;
+  --line: rgba(236, 232, 223, 0.18);
+  --bar-h: 52px;
+  position: relative;
+  min-height: 100dvh;
+  background: var(--ink);
+  color: var(--paper);
+  font-family: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+  font-size: 15px;
+  line-height: 1.6;
+  overflow-x: clip;
+}
+
+/* fixed randomized grain over the whole site (canvas) */
+.grain-field {
+  position: fixed;
+  z-index: 74;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+.dk::after {
+  position: fixed;
+  z-index: 75;
+  inset: 0;
+  content: "";
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(236, 232, 223, 0.05) 0px,
+    rgba(236, 232, 223, 0.05) 1px,
+    rgba(11, 11, 10, 0) 1px,
+    rgba(11, 11, 10, 0) 3px
+  );
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ---------- machine bar -------------------------------------------------- */
+.bar {
+  position: fixed;
+  z-index: 90;
+  top: 0;
+  right: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  height: var(--bar-h);
+  padding: 0 clamp(0.75rem, 2vw, 1.5rem);
+  border-bottom: 1px solid rgba(236, 232, 223, 0.24);
+  background: rgba(11, 11, 10, 0.9);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: lowercase;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.brand:hover {
+  background: var(--chalk);
+  color: var(--ink);
+}
+
+.bar__nav {
+  display: flex;
+  margin-left: auto;
+  gap: 0;
+}
+
+.bar__nav a {
+  display: inline-flex;
+  gap: 0.35em;
+  padding: 0.45rem 0.7rem;
+  border-left: 1px solid rgba(236, 232, 223, 0.16);
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+}
+
+.nav__num {
+  color: var(--paper);
+}
+
+.bar__nav a:hover .nav__num,
+.bar__nav a:focus-visible .nav__num {
+  color: inherit;
+}
+
+.bar__nav a:hover,
+.bar__nav a:focus-visible {
+  background: var(--chalk);
+  color: var(--ink);
+  outline: none;
+}
+
+/* ---------- hero: artist portrait ---------------------------------------- */
+.portrait {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100dvh;
+  padding: calc(var(--bar-h) + 3rem) clamp(1.1rem, 6vw, 5.5rem)
+    clamp(2.5rem, 8vh, 5rem);
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+  background: var(--ink);
+}
+
+.portrait__img {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 42%;
+  filter: grayscale(1) contrast(1.12) brightness(0.78);
+}
+
+.portrait::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: "";
+  background:
+    linear-gradient(
+      to top,
+      rgba(11, 11, 10, 0.96) 0%,
+      rgba(11, 11, 10, 0.82) 26%,
+      rgba(11, 11, 10, 0.18) 62%,
+      rgba(11, 11, 10, 0.22) 100%
+    ),
+    linear-gradient(
+      100deg,
+      rgba(11, 11, 10, 0.86) 0%,
+      rgba(11, 11, 10, 0.25) 48%,
+      rgba(11, 11, 10, 0) 72%
+    );
+  pointer-events: none;
+}
+
+.portrait__copy {
+  position: relative;
+  z-index: 2;
+  width: min(86rem, 94vw);
+}
+
+.portrait__label {
+  margin: 0 0 1.2rem;
+  color: #d0ccc2;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.portrait__title {
+  margin: 0 0 0 -0.045em;
+  color: var(--paper);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(4rem, 12vw, 12rem);
+  font-weight: 400;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+  text-shadow: 0 0 44px rgba(11, 11, 10, 0.65);
+}
+
+.portrait__body {
+  max-width: 58ch;
+  margin: 1.4rem 0 0;
+  color: #d8d4ca;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  text-shadow: 0 1px 14px rgba(11, 11, 10, 0.85);
+}
+
+/* ---------- hero: archive index ------------------------------------------ */
+.archive {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: calc(var(--bar-h) + 2rem) clamp(1.1rem, 6vw, 5.5rem)
+    clamp(2rem, 6vh, 4rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.archive__top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.archive__grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: center;
+  padding-top: clamp(2rem, 5vh, 4rem);
+}
+
+.archive__label {
+  margin: 0 0 1rem;
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.archive__title {
+  margin: 0 0 1.5rem;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(3.4rem, 7vw, 7rem);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+}
+
+.archive__body {
+  max-width: 46ch;
+  margin: 0;
+  color: var(--smoke);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.archive__meta {
+  margin: 2rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line);
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.archive__index {
+  width: 100%;
+}
+
+.archive__head {
+  display: grid;
+  grid-template-columns: 2rem 2.6rem minmax(0, 1fr) 3.6rem 3rem;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.6rem 0.4rem;
+  border-bottom: 1px solid var(--line);
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.archive__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.archive__row {
+  border-bottom: 1px solid var(--line);
+}
+
+.archive__link {
+  display: grid;
+  grid-template-columns: 2rem 2.6rem minmax(0, 1fr) 3.6rem 3rem;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.6rem 0.4rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background 150ms linear, color 150ms linear;
+}
+
+a.archive__link:hover,
+a.archive__link:focus-visible {
+  background: var(--paper);
+  color: var(--ink);
+  outline: none;
+}
+
+.archive__num {
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+}
+
+.archive__thumb {
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.15);
+}
+
+.archive__name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.archive__name-title {
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(1rem, 1.35vw, 1.25rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.archive__type {
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.archive__year,
+.archive__state {
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+}
+
+.archive__state {
+  text-align: right;
+}
+
+a.archive__link:hover .archive__num,
+a.archive__link:hover .archive__type,
+a.archive__link:hover .archive__year,
+a.archive__link:hover .archive__state {
+  color: var(--ink);
+}
+
+.archive__row--soon {
+  opacity: 0.5;
+}
+
+.archive__row--soon .archive__thumb {
+  filter: blur(2px) grayscale(1);
+}
+
+/* ---------- hero: noise + ascii ------------------------------------------ */
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 100dvh;
+  padding: calc(var(--bar-h) + 3rem) clamp(1.1rem, 6vw, 5.5rem)
+    clamp(2.5rem, 8vh, 5rem);
+  overflow: hidden;
+  border-bottom: 1px solid var(--line);
+}
+
+.noise-field {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.28;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+
+.hero::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: "";
+  background:
+    radial-gradient(
+      ellipse at 18% 82%,
+      rgba(11, 11, 10, 0.98) 0%,
+      rgba(11, 11, 10, 0.86) 34%,
+      rgba(11, 11, 10, 0) 68%
+    ),
+    linear-gradient(
+      to top,
+      rgba(11, 11, 10, 0.94) 0%,
+      rgba(11, 11, 10, 0.5) 32%,
+      rgba(11, 11, 10, 0) 64%
+    );
+  pointer-events: none;
+}
+
+.ascii-boy {
+  position: absolute;
+  z-index: 2;
+  right: clamp(1rem, 4vw, 4rem);
+  bottom: clamp(2rem, 7vh, 4rem);
+  margin: 0;
+  color: var(--paper);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: clamp(7px, 0.9vw, 12px);
+  line-height: 1.02;
+  letter-spacing: 0;
+  white-space: pre;
+  opacity: 0.9;
+  text-shadow: 0 0 14px rgba(236, 232, 223, 0.25);
+  pointer-events: none;
+}
+
+.hero .scroll-scrub__copy {
+  position: relative;
+  z-index: 3;
+  width: min(90rem, 94vw);
+}
+
+.hero .scroll-scrub__copy::before {
+  display: none;
+  inset: -30vh -30vw -6vh -10vw;
+  background: linear-gradient(
+    104deg,
+    rgba(11, 11, 10, 0.97) 0%,
+    rgba(11, 11, 10, 0.92) 38%,
+    rgba(11, 11, 10, 0.55) 66%,
+    rgba(11, 11, 10, 0) 94%
+  );
+}
+
+.hero .scroll-scrub__kicker {
+  max-width: none;
+  margin: 0 0 1.4rem;
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.hero .scroll-scrub__title {
+  max-width: none;
+  margin: 0;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(3.1rem, 11.2vw, 11rem);
+  font-weight: 400;
+  line-height: 0.8;
+  letter-spacing: -0.055em;
+  text-shadow: 0 0 42px rgba(236, 232, 223, 0.16);
+  text-wrap: nowrap;
+}
+
+.hero .scroll-scrub__body {
+  max-width: 70ch;
+  margin-top: 1.3rem;
+  color: var(--smoke);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: clamp(0.9rem, 1.15vw, 1.05rem);
+  line-height: 1.65;
+}
+
+/* ---------- shared section type ----------------------------------------- */
+.bill,
+.log {
+  position: relative;
+  padding: clamp(4.5rem, 10vh, 8.5rem) clamp(1.1rem, 6vw, 5.5rem);
+  border-bottom: 1px solid var(--line);
+  scroll-margin-top: calc(var(--bar-h) + 8px);
+}
+
+.bill__head,
+.inverse__head,
+.log__head {
+  position: relative;
+  padding-left: 0;
+}
+
+.rail-label {
+  position: absolute;
+  top: 0.4rem;
+  left: -1.4rem;
+  margin: 0;
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transform: rotate(180deg);
+  transform-origin: left top;
+  writing-mode: vertical-rl;
+}
+
+.rail-label--ink {
+  color: #4a4a44;
+}
+
+.h-display {
+  margin: 0 0 0 -0.03em;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(3.2rem, 9.5vw, 8rem);
+  font-weight: 400;
+  line-height: 0.82;
+  letter-spacing: -0.05em;
+}
+
+.lede {
+  max-width: none;
+  margin: 1.2rem 0 0;
+  color: var(--smoke);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.lede--ink {
+  color: #3c3c37;
+}
+
+/* ---------- music -------------------------------------------------------- */
+.bill__head {
+  margin-bottom: clamp(2.5rem, 6vw, 4.5rem);
+}
+
+.sleeves {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(1.4rem, 3vw, 3rem);
+  row-gap: clamp(2rem, 4vw, 3.5rem);
+  align-items: stretch;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sleeve {
+  position: relative;
+  display: grid;
+  grid-row: span 4;
+  grid-template-rows: subgrid;
+  row-gap: 0;
+}
+
+.sleeve:nth-child(2) {
+  margin-top: 0;
+}
+
+.sleeve:nth-child(3) {
+  margin-top: 0;
+}
+
+.sleeve__art {
+  position: relative;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid rgba(236, 232, 223, 0.3);
+  background: #101010;
+  transition: transform 220ms ease, border-color 220ms linear;
+}
+
+.sleeve:hover .sleeve__art {
+  transform: translateY(-5px) rotate(-0.5deg);
+  border-color: var(--chalk);
+}
+
+.sleeve__art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+}
+
+.sleeve--upcoming .sleeve__art img {
+  filter: grayscale(1) contrast(1.05) brightness(0.85) blur(12px);
+}
+
+.sleeve__art figcaption {
+  padding-top: 0.6rem;
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.sleeve__meta {
+  display: contents;
+}
+
+.sleeve__meta h3 {
+  margin: 1.15rem 0 0;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(1.35rem, 2.1vw, 1.9rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+}
+
+.stamp {
+  display: inline-block;
+  margin: 0;
+  padding: 0.18em 0.5em;
+  background: var(--ash);
+  color: var(--ink);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: lowercase;
+}
+
+.stamp--ink {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.sleeve__desc {
+  max-width: none;
+  margin: 0.8rem 0 0;
+  color: var(--smoke);
+  font-size: 0.82rem;
+  line-height: 1.65;
+}
+
+.listen {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 0.55em;
+  margin: 1rem 0 0;
+  padding: 0.55em 0.85em;
+  border: 1px solid var(--paper);
+  color: var(--chalk);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 160ms linear, color 160ms linear;
+}
+
+.listen--soon {
+  border-color: rgba(236, 232, 223, 0.35);
+  border-style: dashed;
+  color: var(--ash);
+  cursor: default;
+}
+
+.listen--soon:hover {
+  border-color: rgba(236, 232, 223, 0.35);
+  background: transparent;
+  color: var(--ash);
+}
+
+.listen span {
+  color: var(--ash);
+}
+
+.listen:hover,
+.listen:focus-visible {
+  background: var(--chalk);
+  color: var(--ink);
+  outline: none;
+}
+
+.listen:hover span {
+  color: var(--ink);
+}
+
+/* ---------- games, inverse video ----------------------------------------- */
+.inverse {
+  position: relative;
+  padding: clamp(4.5rem, 10vh, 8.5rem) clamp(1.1rem, 6vw, 5.5rem);
+  border-bottom: 1px solid var(--ink);
+  scroll-margin-top: calc(var(--bar-h) + 8px);
+  background-color: var(--paper);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(11, 11, 10, 0.055) 0px,
+    rgba(11, 11, 10, 0.055) 1px,
+    rgba(236, 232, 223, 0) 1px,
+    rgba(236, 232, 223, 0) 3px
+  );
+  color: var(--ink);
+}
+
+.inverse .h-display {
+  color: var(--ink);
+}
+
+.inverse__head {
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.ledger {
+  margin: 0;
+  padding: 0;
+  border-bottom: 2px solid var(--ink);
+  list-style: none;
+}
+
+.ledger__row {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem 5.5rem;
+  gap: clamp(1rem, 2.2vw, 2rem);
+  align-items: center;
+  padding: 1.5rem 0;
+  background-image: linear-gradient(var(--ink), var(--ink));
+  background-repeat: no-repeat;
+  background-position: 0 0;
+  background-size: 100% 2px;
+  transition: color 170ms linear;
+}
+
+/* the black hover floods the full viewport width, not just the row box */
+.ledger__row::before {
+  position: absolute;
+  z-index: -1;
+  top: -2px;
+  bottom: -2px;
+  left: calc(50% - 50vw);
+  width: 100vw;
+  content: "";
+  background: var(--ink);
+  opacity: 0;
+  transition: opacity 150ms linear;
+}
+
+.ledger__row:hover {
+  color: var(--paper);
+}
+
+.ledger__row:hover::before {
+  opacity: 1;
+}
+
+.ledger__idx {
+  position: absolute;
+  top: 1.6rem;
+  left: -2.6rem;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+}
+
+.ledger__row:hover .ledger__idx {
+  color: var(--ash);
+}
+
+.ledger__body h3 {
+  margin: 0;
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(1.45rem, 2.8vw, 2.4rem);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+
+.ledger__body .stamp {
+  margin-top: 0.55rem;
+}
+
+.ledger__row:hover .stamp--ink {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.ledger__desc {
+  max-width: none;
+  margin: 0.6rem 0 0;
+  color: #3c3c37;
+  font-size: 0.8rem;
+  line-height: 1.65;
+}
+
+.ledger__row:hover .ledger__desc {
+  color: var(--smoke);
+}
+
+.ledger__thumb {
+  display: block;
+  width: 9rem;
+  height: 9rem;
+  border: 1px solid var(--ink);
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.1);
+}
+
+.play {
+  display: inline-flex;
+  align-items: center;
+  justify-self: end;
+  gap: 0.55em;
+  padding: 0.6em 0.85em;
+  border: 2px solid var(--ink);
+  color: var(--ink);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background 160ms linear, color 160ms linear;
+}
+
+.play span {
+  color: var(--ash);
+}
+
+.play:hover span {
+  color: var(--ink);
+}
+
+.play:hover,
+.play:focus-visible {
+  background: var(--ink);
+  color: var(--paper);
+  outline: none;
+}
+
+.ledger__row:hover .play {
+  border-color: var(--paper);
+  color: var(--paper);
+}
+
+.ledger__row:hover .play:hover {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+/* ---------- log ---------------------------------------------------------- */
+.log__head {
+  margin-bottom: clamp(2.5rem, 6vw, 4rem);
+}
+
+.log__list {
+  max-width: 74rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.entry {
+  display: grid;
+  grid-template-columns: 8.5rem minmax(0, 1fr);
+  gap: clamp(1.2rem, 3vw, 2.5rem);
+  padding: 2rem 0;
+  border-top: 1px solid var(--line);
+}
+
+.entry__date {
+  padding-top: 0.45rem;
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.entry h3 {
+  margin: 0 0 0.8rem;
+  color: var(--chalk);
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: clamp(1.35rem, 2.3vw, 1.9rem);
+  font-weight: 400;
+  line-height: 1.06;
+  letter-spacing: -0.02em;
+}
+
+.entry p {
+  max-width: none;
+  margin: 0 0 0.7rem;
+  color: var(--smoke);
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+.new {
+  display: inline-block;
+  margin-left: 0.6em;
+  padding: 0.16em 0.42em;
+  background: var(--chalk);
+  color: var(--ink);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  vertical-align: middle;
+  animation: dk-blink 1.2s steps(2, start) infinite;
+}
+
+.log__cursor {
+  margin: 1.4rem 0 0;
+  color: var(--chalk);
+  font-size: 1rem;
+  line-height: 1;
+  animation: dk-blink 1s steps(2, start) infinite;
+}
+
+/* ---------- footer ------------------------------------------------------- */
+.foot {
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  padding: 2rem clamp(1.1rem, 6vw, 5.5rem);
+  border-top: 1px solid var(--line);
+  color: var(--ash);
+  font-size: 0.76rem;
+}
+
+.foot__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.foot__channels {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.foot__channels a {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  color: var(--paper);
+  transition: background 140ms linear, color 140ms linear, border-color 140ms linear;
+}
+
+.foot__channels a:hover,
+.foot__channels a:focus-visible {
+  border-color: var(--chalk);
+  background: var(--chalk);
+  color: var(--ink);
+  outline: none;
+}
+
+.foot__icon {
+  display: block;
+  width: 20px;
+  height: 20px;
+  background: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+}
+
+.foot__icon--youtube {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/youtube.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/youtube.svg");
+}
+
+.foot__icon--itchdotio {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/itchdotio.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/itchdotio.svg");
+}
+
+.foot__icon--bandcamp {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/bandcamp.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/bandcamp.svg");
+}
+
+.foot__icon--tiktok {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/tiktok.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/tiktok.svg");
+}
+
+.foot__icon--instagram {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/instagram.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/instagram.svg");
+}
+
+.foot__icon--email {
+  -webkit-mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/email.svg");
+  mask-image: url("https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/icons/email.svg");
+}
+
+.foot__bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--line);
+}
+
+.foot__line {
+  margin: 0;
+}
+
+.foot__wallet {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.foot__wallet-label {
+  color: var(--ash);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.foot__wallet-value {
+  color: var(--paper);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.66rem;
+  overflow-wrap: anywhere;
+}
+
+.wallet-key {
+  padding: 0.5em 0.8em;
+  border: 1px solid var(--paper);
+  background: transparent;
+  color: var(--paper);
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.wallet-key:hover {
+  background: var(--chalk);
+  color: var(--ink);
+}
+
+.foot p {
+  margin: 0;
+}
+
+/* ---------- motion ------------------------------------------------------- */
+@keyframes dk-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* micro labels: mono, set tight and heavy now that the pixel face is gone */
+.rail-label,
+.sleeve__art figcaption,
+.ledger__idx,
+.entry__date,
+.foot__wallet-label,
+.new {
+  font-weight: 700;
+}
+
+/* ---------- responsive --------------------------------------------------- */
+@media (max-width: 980px) {
+  .archive__grid {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .archive__title {
+    font-size: clamp(3.4rem, 12vw, 5rem);
+  }
+
+  .archive__body {
+    max-width: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .archive {
+    padding-top: calc(var(--bar-h) + 1.5rem);
+  }
+
+  .archive__head,
+  .archive__link {
+    grid-template-columns: 1.6rem 2rem minmax(0, 1fr) 3rem 2.4rem;
+    gap: 0.5rem;
+  }
+
+  .archive__head {
+    font-size: 7px;
+  }
+
+  .archive__link {
+    padding: 0.55rem 0.2rem;
+  }
+
+  .archive__thumb {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .archive__name-title {
+    font-size: 0.95rem;
+  }
+
+  .archive__type {
+    font-size: 7px;
+  }
+
+  .archive__num,
+  .archive__year,
+  .archive__state {
+    font-size: 8px;
+  }
+}
+@media (max-width: 1000px) {
+  .bar__nav {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  .sleeves {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sleeve:nth-child(3) {
+    margin-top: 0;
+  }
+
+  .ledger__row {
+    grid-template-columns: minmax(0, 1fr) 7rem 4.5rem;
+  }
+
+  .ledger__thumb {
+    width: 7rem;
+    height: 7rem;
+  }
+}
+
+@media (max-width: 700px) {
+  .bar {
+    gap: 0.75rem;
+  }
+
+  .bar__nav {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .bar__nav a {
+    padding: 0.4rem 0.5rem;
+    font-size: 10px;
+    white-space: nowrap;
+  }
+
+  .nav__word {
+    display: none;
+  }
+
+  .hero .scroll-scrub__title {
+    max-width: none;
+    font-size: clamp(2.9rem, 15.5vw, 5rem);
+    text-wrap: nowrap;
+  }
+
+  .hero {
+    padding-bottom: 2.2rem;
+  }
+
+  .portrait {
+    padding-bottom: 2.5rem;
+  }
+
+  .portrait__img {
+    object-position: 50% 32%;
+    filter: grayscale(1) contrast(1.15) brightness(0.68);
+  }
+
+  .portrait__title {
+    font-size: clamp(3.4rem, 15vw, 5.5rem);
+  }
+
+  .portrait__body {
+    max-width: none;
+    font-size: 0.9rem;
+  }
+
+  .ascii-boy {
+    top: calc(var(--bar-h) + 1.2rem);
+    right: 0.9rem;
+    bottom: auto;
+    font-size: 7px;
+    opacity: 0.92;
+    text-shadow:
+      0 0 10px rgba(11, 11, 10, 0.98),
+      0 0 18px rgba(11, 11, 10, 0.9);
+  }
+
+  .noise-field {
+    opacity: 0.2;
+  }
+
+  .hero .scroll-scrub__chapter-pin {
+    padding-bottom: 2.2rem;
+  }
+
+  .hero .scroll-scrub__copy::before {
+    inset: -20vh -10vw -4vh -8vw;
+    background: linear-gradient(
+      to top,
+      rgba(11, 11, 10, 0.97) 0%,
+      rgba(11, 11, 10, 0.86) 58%,
+      rgba(11, 11, 10, 0.15) 100%
+    );
+  }
+
+  .rail-label {
+    display: none;
+  }
+
+  .bill__head,
+  .inverse__head,
+  .log__head {
+    padding-left: 0;
+  }
+
+  .sleeves {
+    grid-template-columns: 1fr;
+  }
+
+  .sleeve:nth-child(2) {
+    margin-top: 0;
+  }
+
+  .ledger__row {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    gap: 0.9rem;
+    padding: 1.3rem 0.2rem;
+  }
+
+  .ledger__idx {
+    position: static;
+    grid-column: 1;
+    grid-row: 1;
+    align-self: start;
+    padding-top: 0.35rem;
+  }
+
+  .ledger__body {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .ledger__thumb {
+    grid-column: 2;
+    grid-row: 2;
+    width: 6.5rem;
+    height: 6.5rem;
+  }
+
+  .play {
+    grid-column: 2;
+    grid-row: 3;
+    justify-self: start;
+  }
+
+  .entry {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .entry__date {
+    padding-top: 0;
+  }
+
+  .foot__top {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .new,
+  .log__cursor {
+    animation: none;
+  }
+
+  .sleeve__art,
+  .ledger__row,
+  .listen,
+  .play,
+  .foot__channels a {
+    transition: none;
+  }
+}
+
+</style>
+</head>
+<body>
+<div class="dk" id="top"><canvas aria-hidden="true" class="grain-field"></canvas><header class="bar"><a class="brand" href="#top">DEMOKIRA</a><nav aria-label="Sections" class="bar__nav"><a href="#music"><span class="nav__num">01</span><span class="nav__word">music</span></a><a href="#games"><span class="nav__num">02</span><span class="nav__word">games</span></a><a href="#log"><span class="nav__num">03</span><span class="nav__word">log</span></a></nav></header><main><section class="portrait" id="signal" aria-labelledby="site-title">
+  <img alt="Sargis Dskhkunyan, Demokira" class="portrait__img" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/artist.jpg"/>
+  <div class="portrait__copy">
+    <h1 class="portrait__title" id="site-title">Demokira</h1>
+    <p class="portrait__body">Hi, I&#x27;m Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+  </div>
+</section><section aria-labelledby="music-heading" class="bill" id="music"><div class="bill__head"><p class="rail-label">side a / audio</p><h2 class="h-display" id="music-heading">Music</h2><p class="lede">Standalone releases and soundtracks for indie games — mine and other people&#x27;s</p></div><ol class="sleeves"><li class="sleeve"><figure class="sleeve__art"><img alt="Selected works cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/best-of.jpg" width="512"/><figcaption>playlist</figcaption></figure><div class="sleeve__meta"><h3>Selected works</h3><p class="sleeve__desc">A playlist featuring my favorite tracks from 2023 and 2024</p><a class="listen" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> listen</a></div></li><li class="sleeve"><figure class="sleeve__art"><img alt="Demokira cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/demokira.jpg" width="512"/><figcaption>album</figcaption></figure><div class="sleeve__meta"><h3>Demokira</h3><p class="sleeve__desc">An experimental ambient album focusing on a dark sound and unusual textures</p><a class="listen" href="https://demokira.bandcamp.com/album/demokira" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> listen</a></div></li><li class="sleeve"><figure class="sleeve__art"><img alt="Rekuiemu Nikki OST cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/rekuiemu-ost.jpg" width="512"/><figcaption>soundtrack</figcaption></figure><div class="sleeve__meta"><h3>Rekuiemu Nikki OST</h3><p class="sleeve__desc">A soundtrack inspired by the original Yume Nikki</p><a class="listen" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> listen</a></div></li><li class="sleeve"><figure class="sleeve__art"><img alt="Why Do Not I Have A Choice cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/choice.jpg" width="512"/><figcaption>album</figcaption></figure><div class="sleeve__meta"><h3>Why Do Not I Have A Choice</h3><p class="sleeve__desc">A solo piano album played live and improvised from start to finish</p><a class="listen" href="https://demokira.bandcamp.com/album/why-do-not-i-have-a-choice" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> listen</a></div></li><li class="sleeve"><figure class="sleeve__art"><img alt="It Is Nothing Short Of A Hoax cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/hoax.jpg" width="512"/><figcaption>album</figcaption></figure><div class="sleeve__meta"><h3>It Is Nothing Short Of A Hoax</h3><p class="sleeve__desc">An experimental breakcore album built on broken beats and ambient beds with sudden collapses</p><a class="listen" href="https://demokira.bandcamp.com/album/it-is-nothing-short-of-a-hoax" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> listen</a></div></li><li class="sleeve sleeve--upcoming"><figure class="sleeve__art"><img alt="??? cover artwork" height="512" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/upcoming.jpg" width="512"/><figcaption>album</figcaption></figure><div class="sleeve__meta"><h3>???</h3><p class="sleeve__desc">An experimental noise rock album built on broken guitars and tape hiss. A voice keeps slipping out of tune</p><span class="listen listen--soon">soon</span></div></li></ol></section><section aria-labelledby="games-heading" class="inverse" id="games"><div class="inverse__head"><p class="rail-label rail-label--ink">side b / interactive</p><h2 class="h-display" id="games-heading">Games</h2><p class="lede lede--ink">Short narrative games from me, as well as other game jam projects</p></div><ol class="ledger"><li class="ledger__row"><span aria-hidden="true" class="ledger__idx">01</span><div class="ledger__body"><h3>TV Show Or Die?</h3><p class="stamp stamp--ink">visual novel</p><p class="ledger__desc">A short visual novel about a guy who gets into trouble for money. Took 1st place in the soundtrack category with the soundtrack written by me</p></div><img alt="" class="ledger__thumb" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/tv-show.jpg"/><a class="play" href="https://demokira.itch.io/tv-show-or-die" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> play</a></li><li class="ledger__row"><span aria-hidden="true" class="ledger__idx">02</span><div class="ledger__body"><h3>Soul of Akstama</h3><p class="stamp stamp--ink">visual novel</p><p class="ledger__desc">A short visual novel that tells the story of a mirror located in Akstama Castle</p></div><img alt="" class="ledger__thumb" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/soul-of-akstama.jpg"/><a class="play" href="https://demokira.itch.io/soul-of-akstama" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> play</a></li><li class="ledger__row"><span aria-hidden="true" class="ledger__idx">03</span><div class="ledger__body"><h3>Rekuiemu Nikki</h3><p class="stamp stamp--ink">surreal adventure</p><p class="ledger__desc">A Yume Nikki fangame, about exploring the mind of young Julie</p></div><img alt="" class="ledger__thumb" loading="lazy" src="https://cdn.jsdelivr.net/gh/demokira/demokiras-page@preview-portrait/assets/covers/rekuiemu-nikki.jpg"/><a class="play" href="https://eklsn.itch.io/reknikki" rel="noopener noreferrer" target="_blank"><span aria-hidden="true">»</span> play</a></li></ol></section><section aria-labelledby="log-heading" class="log" id="log"><div class="log__head"><p class="rail-label">write buffer / notes</p><h2 class="h-display" id="log-heading">Blog</h2><p class="lede">Short notes: work-in-progress updates, thoughts, breakdowns</p></div><ol class="log__list"><li class="entry"><time class="entry__date" datetime="2026-09-27">26-09-27</time><div class="entry__body"><h3>It&#x27;s quiet for now<span class="new">new!</span></h3><p>I have so many ideas, but little time and a lack of inspiration to bring them to life.</p><p>You might be expecting something new from me, but there probably won&#x27;t be anything until the end of the year.</p></div></li><li class="entry"><time class="entry__date" datetime="2026-08-05">26-08-05</time><div class="entry__body"><h3>My personal page. I&#x27;m so glad!</h3><p>I’ve created my own page. I’ll try to populate it as things progress.</p></div></li></ol><p aria-hidden="true" class="log__cursor">▮</p></section></main><footer class="foot"><div class="foot__top"><ul aria-label="Channels" class="foot__channels"><li><a aria-label="youtube" href="https://www.youtube.com/@demokira" rel="noopener noreferrer" target="_blank" title="youtube"><span aria-hidden="true" class="foot__icon foot__icon--youtube"></span></a></li><li><a aria-label="itch.io" href="https://demokira.itch.io" rel="noopener noreferrer" target="_blank" title="itch.io"><span aria-hidden="true" class="foot__icon foot__icon--itchdotio"></span></a></li><li><a aria-label="bandcamp" href="https://demokira.bandcamp.com" rel="noopener noreferrer" target="_blank" title="bandcamp"><span aria-hidden="true" class="foot__icon foot__icon--bandcamp"></span></a></li><li><a aria-label="tiktok" href="https://www.tiktok.com/@demokira_?_r=1&amp;_t=ZS-98bt2Kt1skm" rel="noopener noreferrer" target="_blank" title="tiktok"><span aria-hidden="true" class="foot__icon foot__icon--tiktok"></span></a></li><li><a aria-label="instagram" href="https://www.instagram.com/srgsdshkhnn" rel="noopener noreferrer" target="_blank" title="instagram"><span aria-hidden="true" class="foot__icon foot__icon--instagram"></span></a></li><li><a aria-label="email" href="mailto:sargis.dshkhunyan@gmail.com" rel="noopener noreferrer" title="email"><span aria-hidden="true" class="foot__icon foot__icon--email"></span></a></li></ul></div><div class="foot__bottom"><p class="foot__line">love and be loved © 2026 demokira</p><div class="foot__wallet"><span class="foot__wallet-label">USDT ERC-20</span><code class="foot__wallet-value">0xeE617911771d9Ce4eA3d1679400DaCcA7949faa9</code><button class="wallet-key" type="button">copy</button></div></div></footer></div>
+<script>
+(function () {
+  "use strict";
+
+  // Random film grain over the whole site: every frame is re-randomized,
+  // so light areas never show a repeating tile sliding around.
+  var grain = document.querySelector(".grain-field");
+  if (grain && grain.getContext) {
+    var gctx = grain.getContext("2d");
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    var gw = 0;
+    var gh = 0;
+    var gdpr = 1;
+    var field = document.createElement("canvas");
+    var fctx = field.getContext("2d");
+    var image = null;
+    var glast = 0;
+    var graf = 0;
+
+    var gresize = function () {
+      var rect = grain.getBoundingClientRect();
+      gw = Math.max(1, rect.width);
+      gh = Math.max(1, rect.height);
+      gdpr = Math.min(window.devicePixelRatio || 1, 2);
+      grain.width = Math.round(gw * gdpr);
+      grain.height = Math.round(gh * gdpr);
+      gctx.setTransform(gdpr, 0, 0, gdpr, 0, 0);
+      field.width = Math.max(160, Math.round(gw / 2));
+      field.height = Math.max(120, Math.round(gh / 2));
+      image = null;
+    };
+
+    var gdraw = function (now) {
+      if (!gw || !gh) {
+        gresize();
+      }
+      if (now - glast < 70) {
+        graf = window.requestAnimationFrame(gdraw);
+        return;
+      }
+      glast = now;
+
+      var w = field.width;
+      var h = field.height;
+      if (!image) {
+        image = fctx.createImageData(w, h);
+      }
+      var data = image.data;
+      for (var i = 0; i < data.length; i += 4) {
+        var value = (Math.random() * 255) | 0;
+        data[i] = value;
+        data[i + 1] = value;
+        data[i + 2] = value;
+        data[i + 3] = 255;
+      }
+      fctx.putImageData(image, 0, 0);
+      gctx.clearRect(0, 0, gw, gh);
+      gctx.imageSmoothingEnabled = true;
+      gctx.drawImage(field, 0, 0, gw, gh);
+
+      if (!reduce) {
+        graf = window.requestAnimationFrame(gdraw);
+      }
+    };
+
+    gresize();
+    gdraw(performance.now());
+    window.addEventListener("resize", function () {
+      gresize();
+      gdraw(performance.now());
+    });
+    window.addEventListener("pagehide", function () {
+      if (graf) window.cancelAnimationFrame(graf);
+    });
+  }
+
+  // copy the wallet key
+  var copy = document.querySelector(".wallet-key");
+  if (copy) {
+    copy.addEventListener("click", function () {
+      var value = document.querySelector(".foot__wallet-value");
+      if (!value) return;
+      var text = value.textContent.trim();
+      var done = function () {
+        var old = copy.textContent;
+        copy.textContent = "copied";
+        window.setTimeout(function () {
+          copy.textContent = old;
+        }, 1500);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, done);
+      } else {
+        done();
+      }
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
