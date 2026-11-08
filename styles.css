@@ -322,18 +322,16 @@ html {
   overflow-x: clip;
 }
 
-/* fixed signal texture over the whole machine: animated grain stays with the
-   visitor after the hero and reads on both black and paper sections */
-.dk::before {
+/* fixed randomized grain over the whole site (canvas) */
+.grain-field {
   position: fixed;
   z-index: 74;
   inset: 0;
-  content: "";
-  background-image: url("assets/noise.png");
-  background-size: 240px 240px;
+  display: block;
+  width: 100%;
+  height: 100%;
+  opacity: 0.2;
   mix-blend-mode: overlay;
-  opacity: 0.4;
-  animation: dk-grain 1.05s steps(4) infinite;
   pointer-events: none;
 }
 
@@ -1380,24 +1378,6 @@ a.archive__link:hover .archive__state {
   }
 }
 
-@keyframes dk-grain {
-  0% {
-    background-position: 0 0;
-  }
-  25% {
-    background-position: -43px 27px;
-  }
-  50% {
-    background-position: 31px -39px;
-  }
-  75% {
-    background-position: -17px -11px;
-  }
-  100% {
-    background-position: 47px 33px;
-  }
-}
-
 /* micro labels: mono, set tight and heavy now that the pixel face is gone */
 .rail-label,
 .sleeve__art figcaption,
@@ -1635,10 +1615,6 @@ a.archive__link:hover .archive__state {
 
   .new,
   .log__cursor {
-    animation: none;
-  }
-
-  .dk::before {
     animation: none;
   }
 
