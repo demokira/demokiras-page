@@ -392,7 +392,7 @@ html {
 
 .bar__nav {
   display: flex;
-  margin-left: auto;
+  margin: 0 auto;
   gap: 0;
 }
 
@@ -1468,7 +1468,7 @@ a.archive__link:hover .archive__state {
 }
 @media (max-width: 1000px) {
   .bar__nav {
-    margin-left: auto;
+    margin: 0 auto;
   }
 }
 
