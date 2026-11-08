@@ -417,6 +417,10 @@ html {
   color: inherit;
 }
 
+.bar__nav a:first-child {
+  border-left: 0;
+}
+
 .bar__nav a:hover,
 .bar__nav a:focus-visible {
   background: var(--chalk);
