@@ -417,6 +417,10 @@ html {
   color: inherit;
 }
 
+.bar__nav a:nth-child(2) {
+  border-left: 0;
+}
+
 .bar__nav a:hover,
 .bar__nav a:focus-visible {
   background: var(--chalk);
@@ -433,7 +437,6 @@ html {
   padding: calc(var(--bar-h) + 3rem) clamp(1.1rem, 6vw, 5.5rem)
     clamp(2.5rem, 8vh, 5rem);
   overflow: hidden;
-  border-bottom: 1px solid var(--line);
   background: var(--ink);
 }
 
@@ -457,8 +460,8 @@ html {
   background:
     linear-gradient(
       to top,
-      rgba(11, 11, 10, 0.96) 0%,
-      rgba(11, 11, 10, 0.82) 26%,
+      #0b0b0a 0%,
+      rgba(11, 11, 10, 0.9) 22%,
       rgba(11, 11, 10, 0.18) 62%,
       rgba(11, 11, 10, 0.22) 100%
     ),
