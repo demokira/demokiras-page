@@ -1032,6 +1032,60 @@ a.archive__link:hover .archive__state {
   color: var(--ink);
 }
 
+.inverse--games {
+  background-color: #ffffff;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(11, 11, 10, 0.04) 0px,
+    rgba(11, 11, 10, 0.04) 1px,
+    rgba(255, 255, 255, 0) 1px,
+    rgba(255, 255, 255, 0) 3px
+  );
+}
+
+.inverse--games .sleeve__art {
+  border-color: var(--ink);
+  background: transparent;
+}
+
+.inverse--games .sleeve__art figcaption {
+  color: #4a4a44;
+}
+
+.inverse--games .sleeve__meta h3 {
+  color: var(--ink);
+}
+
+.inverse--games .sleeve__desc {
+  color: #3c3c37;
+}
+
+.inverse--games .sleeve:hover .sleeve__art {
+  border-color: var(--ink);
+}
+
+.inverse--games .play {
+  justify-self: start;
+  margin: 1rem 0 0;
+  padding: 0.55em 0.85em;
+  border-width: 1px;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+}
+
+.inverse--games .play span {
+  color: #5a5a52;
+}
+
+.inverse--games .play:hover {
+  background: var(--ink);
+  color: var(--chalk);
+}
+
+.inverse--games .play:hover span {
+  color: var(--chalk);
+}
+
 .inverse__head {
   margin-bottom: clamp(2.5rem, 6vw, 4rem);
 }
