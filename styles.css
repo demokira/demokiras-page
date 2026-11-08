@@ -498,7 +498,7 @@ html {
 }
 
 .portrait__body {
-  max-width: 58ch;
+  max-width: 50vw;
   margin: 1.4rem 0 0;
   color: #d8d4ca;
   font-family: "Space Mono", ui-monospace, monospace;
