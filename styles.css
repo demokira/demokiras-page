@@ -377,8 +377,10 @@ html {
   display: inline-flex;
   align-items: center;
   color: var(--chalk);
-  font-size: 12px;
-  letter-spacing: 0.16em;
+  font-family: "Archivo Black", "Arial Black", sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0.1em;
   text-decoration: none;
   text-transform: uppercase;
 }
@@ -485,7 +487,7 @@ html {
 }
 
 .portrait__title {
-  margin: 0;
+  margin: 0 0 0 -0.045em;
   color: var(--paper);
   font-family: "Archivo Black", "Arial Black", sans-serif;
   font-size: clamp(4rem, 12vw, 12rem);
@@ -815,13 +817,13 @@ a.archive__link:hover .archive__state {
 .inverse__head,
 .log__head {
   position: relative;
-  padding-left: clamp(0rem, 2.2vw, 2.6rem);
+  padding-left: 0;
 }
 
 .rail-label {
   position: absolute;
   top: 0.4rem;
-  left: 0;
+  left: -1.4rem;
   margin: 0;
   color: var(--ash);
   font-family: "Space Mono", ui-monospace, monospace;
@@ -838,7 +840,7 @@ a.archive__link:hover .archive__state {
 }
 
 .h-display {
-  margin: 0;
+  margin: 0 0 0 -0.03em;
   color: var(--chalk);
   font-family: "Archivo Black", "Arial Black", sans-serif;
   font-size: clamp(3.2rem, 9.5vw, 8rem);
@@ -1046,10 +1048,10 @@ a.archive__link:hover .archive__state {
   position: relative;
   isolation: isolate;
   display: grid;
-  grid-template-columns: 3.5rem minmax(0, 1fr) 9rem 5.5rem;
+  grid-template-columns: minmax(0, 1fr) 9rem 5.5rem;
   gap: clamp(1rem, 2.2vw, 2rem);
   align-items: center;
-  padding: 1.5rem 0.5rem;
+  padding: 1.5rem 0;
   background-image: linear-gradient(var(--ink), var(--ink));
   background-repeat: no-repeat;
   background-position: 0 0;
@@ -1080,9 +1082,16 @@ a.archive__link:hover .archive__state {
 }
 
 .ledger__idx {
+  position: absolute;
+  top: 1.6rem;
+  left: -2.6rem;
   font-family: "Space Mono", ui-monospace, monospace;
   font-size: 11px;
   letter-spacing: 0.08em;
+}
+
+.ledger__row:hover .ledger__idx {
+  color: var(--ash);
 }
 
 .ledger__body h3 {
@@ -1125,15 +1134,27 @@ a.archive__link:hover .archive__state {
 }
 
 .play {
+  display: inline-flex;
+  align-items: center;
   justify-self: end;
+  gap: 0.55em;
   padding: 0.6em 0.85em;
   border: 2px solid var(--ink);
   color: var(--ink);
-  font-size: 0.72rem;
-  letter-spacing: 0.2em;
+  font-family: "Space Mono", ui-monospace, monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
   text-decoration: none;
   text-transform: uppercase;
   transition: background 160ms linear, color 160ms linear;
+}
+
+.play span {
+  color: var(--ash);
+}
+
+.play:hover span {
+  color: var(--ink);
 }
 
 .play:hover,
@@ -1458,7 +1479,7 @@ a.archive__link:hover .archive__state {
   }
 
   .ledger__row {
-    grid-template-columns: 2.5rem minmax(0, 1fr) 7rem 4.5rem;
+    grid-template-columns: minmax(0, 1fr) 7rem 4.5rem;
   }
 
   .ledger__thumb {
@@ -1569,6 +1590,7 @@ a.archive__link:hover .archive__state {
   }
 
   .ledger__idx {
+    position: static;
     grid-column: 1;
     grid-row: 1;
     align-self: start;
