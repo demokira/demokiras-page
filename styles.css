@@ -433,7 +433,8 @@ html {
   position: relative;
   display: flex;
   align-items: flex-end;
-  min-height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   padding: calc(var(--bar-h) + 3rem) clamp(1.1rem, 6vw, 5.5rem)
     clamp(2.5rem, 8vh, 5rem);
   overflow: hidden;
@@ -819,23 +820,24 @@ a.archive__link:hover .archive__state {
 .bill__head,
 .inverse__head,
 .log__head {
-  position: relative;
+  position: static;
   padding-left: 0;
 }
 
 .rail-label {
   position: absolute;
-  top: 0.4rem;
-  left: -1.4rem;
+  top: clamp(2.5rem, 7vh, 5rem);
+  bottom: auto;
+  left: clamp(0.5rem, 1.2vw, 1.1rem);
   margin: 0;
   color: var(--ash);
   font-family: "Space Mono", ui-monospace, monospace;
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  transform: rotate(180deg);
-  transform-origin: left top;
+  transform: none;
   writing-mode: vertical-rl;
+  white-space: nowrap;
 }
 
 .rail-label--ink {
@@ -1104,6 +1106,7 @@ a.archive__link:hover .archive__state {
 }
 
 .sleeves--games .play {
+  align-self: flex-start;
   margin-top: auto;
 }
 
@@ -1701,6 +1704,36 @@ a.archive__link:hover .archive__state {
   .foot__top {
     flex-direction: column;
     align-items: flex-start;
+  }
+}
+
+@media (max-width: 700px) {
+  .sleeves .sleeve {
+    display: flex;
+    flex-direction: column;
+    grid-row: auto;
+  }
+
+  .sleeves .sleeve__meta {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  .sleeves .sleeve__art {
+    width: 100%;
+  }
+
+  .sleeves .listen,
+  .sleeves--games .play {
+    align-self: flex-start;
+    justify-content: center;
+    justify-self: start;
+    min-height: 44px;
+    margin-top: 1rem;
+    padding: 0.8em 1.1em;
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
   }
 }
 
