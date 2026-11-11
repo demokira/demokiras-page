@@ -922,8 +922,8 @@ a.archive__link:hover .archive__state {
 }
 
 .sleeve__art img.sleeve-img--center {
-  object-fit: contain;
-  background: var(--ink);
+  object-fit: cover;
+  object-position: 60% 50%;
 }
 
 .sleeve--upcoming .sleeve__art img {
@@ -1744,36 +1744,12 @@ a.archive__link:hover .archive__state {
 
 .has-reveal [data-reveal] {
   opacity: 0;
-  transform: translateY(18px);
-  transition:
-    opacity 0.5s linear,
-    transform 0.65s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition: opacity 0.55s steps(4, end);
   transition-delay: var(--reveal-delay, 0ms);
 }
 
 .has-reveal [data-reveal].is-in {
   opacity: 1;
-  transform: none;
-  animation: dk-reveal 0.5s steps(3, end) both;
-}
-
-@keyframes dk-reveal {
-  0% {
-    clip-path: inset(0 0 45% 0);
-    transform: translateY(12px) translateX(-2px);
-  }
-  30% {
-    clip-path: inset(0 0 0 0);
-    transform: translateY(0) translateX(2px);
-  }
-  55% {
-    clip-path: inset(0 0 0 0);
-    transform: translateX(-1px);
-  }
-  100% {
-    clip-path: inset(0 0 0 0);
-    transform: none;
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1788,7 +1764,6 @@ a.archive__link:hover .archive__state {
 
   .has-reveal [data-reveal] {
     opacity: 1;
-    transform: none;
     animation: none;
     transition: none;
     clip-path: none;
