@@ -73,6 +73,38 @@
     });
   }
 
+  // underground reveal: content rises and briefly cuts in like a signal
+  var revealTargets = Array.prototype.slice.call(
+    document.querySelectorAll(
+      ".portrait__copy, .h-display, .lede, .sleeve, .entry, .foot__top, .foot__bottom"
+    )
+  );
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (revealTargets.length && !reduceMotion && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("has-reveal");
+    revealTargets.forEach(function (el) {
+      el.setAttribute("data-reveal", "");
+      var index = el.parentElement
+        ? Array.prototype.indexOf.call(el.parentElement.children, el)
+        : 0;
+      el.style.setProperty("--reveal-delay", Math.min(index, 6) * 60 + "ms");
+    });
+
+    var revealObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          entry.target.classList.add("is-in");
+          revealObserver.unobserve(entry.target);
+        });
+      },
+      { threshold: 0.01, rootMargin: "0px" }
+    );
+    revealTargets.forEach(function (el) {
+      revealObserver.observe(el);
+    });
+  }
+
   // copy the wallet key
   var copy = document.querySelector(".wallet-key");
   if (copy) {
