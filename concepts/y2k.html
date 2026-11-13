@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — Y2K minimal draft</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #f5f9ff;
+    --surface: rgba(255, 255, 255, 0.72);
+    --surface-solid: #ffffff;
+    --ink: #1c2b45;
+    --muted: #71829c;
+    --line: rgba(92, 126, 178, 0.16);
+    --line-strong: rgba(92, 126, 178, 0.28);
+    --blue: #5c8df5;
+    --blue-deep: #3d6fd8;
+    --blue-soft: #e5efff;
+    --lilac: #e9e6ff;
+    --shadow: 0 24px 70px rgba(74, 107, 158, 0.12);
+    --shadow-soft: 0 12px 34px rgba(74, 107, 158, 0.08);
+    --sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background:
+      radial-gradient(1000px 720px at 88% -8%, rgba(205, 225, 255, 0.9) 0%, rgba(205, 225, 255, 0) 62%),
+      radial-gradient(900px 620px at -12% 32%, rgba(235, 230, 255, 0.85) 0%, rgba(235, 230, 255, 0) 58%),
+      linear-gradient(180deg, #fbfdff 0%, #f2f8ff 48%, #fbfdff 100%);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  ::selection { background: #cfe0ff; color: var(--ink); }
+
+  .ambient {
+    position: fixed;
+    z-index: 0;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .ambient--one {
+    top: 8vh;
+    right: 4vw;
+    width: 34vw;
+    height: 34vw;
+    background: radial-gradient(circle at 40% 40%, #d7e7ff, rgba(215, 231, 255, 0));
+  }
+  .ambient--two {
+    top: 62vh;
+    left: -8vw;
+    width: 30vw;
+    height: 30vw;
+    background: radial-gradient(circle at 50% 50%, #e7e2ff, rgba(231, 226, 255, 0));
+  }
+
+  .nav {
+    position: fixed;
+    z-index: 100;
+    top: 18px;
+    left: 50%;
+    display: flex;
+    gap: 4px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow: 0 16px 44px rgba(74, 107, 158, 0.14), inset 0 1px 0 #fff;
+    backdrop-filter: blur(18px);
+    transform: translateX(-50%);
+  }
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.62rem 0.95rem;
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    white-space: nowrap;
+  }
+  .nav a span:first-child {
+    color: #9aabc2;
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 400;
+  }
+  .nav a:hover { color: var(--ink); }
+  .nav a.is-active {
+    color: var(--ink);
+    background: linear-gradient(180deg, #ffffff 0%, #e9f2ff 100%);
+    box-shadow: inset 0 1px 0 #fff, 0 4px 14px rgba(92, 141, 245, 0.14);
+  }
+
+  /* ---------- hero ------------------------------------------------------- */
+  .hero {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 2rem clamp(2rem, 6vw, 7rem);
+    min-height: 100svh;
+    padding: 132px clamp(20px, 5vw, 78px) 34px;
+    overflow: hidden;
+  }
+  .hero__copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding: 1.5rem 0;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    align-self: flex-start;
+    margin: 0 0 1.7rem;
+    padding: 0.55rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.58);
+    box-shadow: inset 0 1px 0 #fff, 0 6px 20px rgba(74, 107, 158, 0.06);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    line-height: 1;
+    text-transform: uppercase;
+  }
+  .eyebrow::before {
+    width: 6px;
+    height: 6px;
+    content: "";
+    border-radius: 50%;
+    background: #7eafff;
+    box-shadow: 0 0 0 4px rgba(126, 175, 255, 0.14);
+  }
+  .hero h1 {
+    margin: 0 0 0 -0.065em;
+    color: var(--ink);
+    font-size: clamp(4.2rem, 9vw, 9.3rem);
+    font-weight: 800;
+    line-height: 0.88;
+    letter-spacing: -0.08em;
+    text-shadow: 0 12px 36px rgba(92, 141, 245, 0.12);
+  }
+  .hero__intro {
+    max-width: 34rem;
+    margin: 1.8rem 0 0;
+    color: var(--muted);
+    font-size: clamp(0.95rem, 1.15vw, 1.05rem);
+    line-height: 1.8;
+  }
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 2.2rem;
+  }
+  .hero__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.65rem 0.9rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.58);
+    box-shadow: inset 0 1px 0 #fff, 0 6px 18px rgba(74, 107, 158, 0.06);
+    color: var(--ink);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+  .hero__links a span {
+    color: #9aabc2;
+    font-family: var(--mono);
+    font-size: 8px;
+    font-weight: 400;
+  }
+  .hero__links a:hover {
+    background: #fff;
+    box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(92, 141, 245, 0.14);
+    transform: translateY(-2px);
+  }
+
+  .hero__visual {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 1rem 0;
+  }
+  .orb {
+    position: absolute;
+    width: min(34vw, 430px);
+    height: min(34vw, 430px);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.95) 0%, rgba(196, 219, 255, 0.7) 32%, rgba(196, 219, 255, 0) 70%);
+    filter: blur(4px);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+  .portrait-card {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 430px);
+    margin: 0;
+    padding: 9px;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 28px;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.92), rgba(235, 244, 255, 0.7));
+    box-shadow: var(--shadow), inset 0 1px 0 #fff;
+    transform: rotate(1.2deg);
+  }
+  .portrait-card::after {
+    position: absolute;
+    z-index: 2;
+    inset: 9px;
+    content: "";
+    border-radius: 21px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.32), transparent 38%, rgba(128, 170, 255, 0.08));
+    pointer-events: none;
+  }
+  .portrait-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 21px;
+    object-fit: cover;
+    object-position: 60% 38%;
+    filter: grayscale(1) contrast(1.04) brightness(1.05);
+    background: #e8f0fb;
+  }
+  .portrait-card__top,
+  .portrait-card figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0.45rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .portrait-card__top { padding-bottom: 0.65rem; }
+  .portrait-card figcaption { padding-top: 0.7rem; }
+  .portrait-card figcaption span:first-child { color: var(--ink); }
+
+  .hero__foot {
+    z-index: 1;
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1.1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hero__foot a { color: var(--ink); }
+  .hero__foot a:hover { color: var(--blue-deep); }
+
+  /* ---------- sections --------------------------------------------------- */
+  .section {
+    position: relative;
+    z-index: 1;
+    padding: clamp(4.5rem, 9vw, 8.5rem) clamp(20px, 5vw, 78px);
+    scroll-margin-top: 88px;
+  }
+  .section--tint {
+    margin: 0 clamp(8px, 2.4vw, 34px);
+    padding: clamp(3rem, 6vw, 5.5rem) clamp(20px, 4vw, 58px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: clamp(26px, 4vw, 46px);
+    background:
+      radial-gradient(700px 360px at 100% 0%, rgba(228, 238, 255, 0.9), rgba(228, 238, 255, 0) 70%),
+      rgba(255, 255, 255, 0.42);
+    box-shadow: inset 0 1px 0 #fff, 0 24px 70px rgba(74, 107, 158, 0.06);
+  }
+  .section__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: clamp(2rem, 4vw, 3.2rem);
+  }
+  .section__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 0.85rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .section__kicker::before {
+    width: 5px;
+    height: 5px;
+    content: "";
+    border-radius: 50%;
+    background: #8eb8ff;
+  }
+  .section h2 {
+    margin: 0;
+    color: var(--ink);
+    font-size: clamp(3.4rem, 6.7vw, 6.8rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.075em;
+  }
+  .section__lede {
+    max-width: 27rem;
+    margin: 0 0 0.35rem;
+    color: var(--muted);
+    font-size: clamp(0.88rem, 1vw, 0.96rem);
+    line-height: 1.8;
+  }
+
+  /* ---------- cards ------------------------------------------------------ */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(14px, 1.8vw, 24px);
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.7);
+    box-shadow: var(--shadow-soft), inset 0 1px 0 #fff;
+    backdrop-filter: blur(12px);
+    transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 300ms ease, background 300ms ease;
+  }
+  .card:hover {
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 24px 54px rgba(74, 107, 158, 0.16), inset 0 1px 0 #fff;
+    transform: translateY(-5px);
+  }
+  .card__art {
+    position: relative;
+    overflow: hidden;
+    border-radius: 17px;
+    background: #e8f0fb;
+  }
+  .card__art img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.03) brightness(1.02);
+    transition: transform 600ms cubic-bezier(0.2, 0.7, 0.2, 1), filter 300ms ease;
+  }
+  .card:hover .card__art img {
+    filter: grayscale(1) contrast(1.1) brightness(1.06);
+    transform: scale(1.035);
+  }
+  .card__art img.center { object-position: 60% 50%; }
+  .card__tag {
+    position: absolute;
+    right: 0.55rem;
+    bottom: 0.55rem;
+    padding: 0.35rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 999px;
+    color: var(--ink);
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: inset 0 1px 0 #fff;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+  }
+  .card--soon .card__art img {
+    filter: grayscale(1) contrast(0.95) brightness(1.08) blur(7px);
+    opacity: 0.8;
+  }
+  .card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.9rem 0.35rem 0.25rem;
+  }
+  .card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.7rem;
+    color: #93a2b7;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .card h3 {
+    margin: 0.65rem 0 0;
+    color: var(--ink);
+    font-size: clamp(1.25rem, 1.55vw, 1.55rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.035em;
+  }
+  .card__desc {
+    margin: 0.65rem 0 0;
+    color: var(--muted);
+    font-size: 0.84rem;
+    line-height: 1.7;
+  }
+  .card__link {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding: 0.62rem 0.8rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    color: var(--ink);
+    background: linear-gradient(180deg, #ffffff 0%, #edf4ff 100%);
+    box-shadow: inset 0 1px 0 #fff, 0 4px 12px rgba(92, 141, 245, 0.08);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+  .card__link span { transition: transform 180ms ease; }
+  .card__link:hover {
+    background: #fff;
+    box-shadow: inset 0 1px 0 #fff, 0 8px 18px rgba(92, 141, 245, 0.14);
+    transform: translateY(-1px);
+  }
+  .card__link:hover span { transform: translate(2px, -2px); }
+  .card__soon { color: #9aabc2; pointer-events: none; }
+
+  /* ---------- log -------------------------------------------------------- */
+  .log-list {
+    display: grid;
+    gap: 12px;
+  }
+  .log-card {
+    display: grid;
+    grid-template-columns: 7rem 8rem minmax(0, 1fr);
+    gap: 1.4rem;
+    align-items: start;
+    padding: 1.35rem 1.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.62);
+    box-shadow: inset 0 1px 0 #fff, 0 10px 30px rgba(74, 107, 158, 0.05);
+    backdrop-filter: blur(12px);
+  }
+  .log-card__meta {
+    display: grid;
+    gap: 0.3rem;
+    color: #93a2b7;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .log-card time { color: var(--ink); }
+  .log-card h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: clamp(1.25rem, 1.7vw, 1.65rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.035em;
+  }
+  .log-card p {
+    max-width: 48rem;
+    margin: 0.55rem 0 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+    line-height: 1.75;
+  }
+  .badge {
+    display: inline-block;
+    margin-left: 0.45rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    color: var(--blue-deep);
+    background: #edf4ff;
+    font-family: var(--mono);
+    font-size: 7px;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    vertical-align: 0.18em;
+  }
+
+  /* ---------- footer ----------------------------------------------------- */
+  .footer {
+    position: relative;
+    z-index: 1;
+    margin: 0 clamp(8px, 2.4vw, 34px) clamp(12px, 2vw, 26px);
+    padding: clamp(2rem, 4vw, 3.2rem) clamp(20px, 4vw, 58px) 1.2rem;
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: clamp(24px, 3.5vw, 38px);
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 1px 0 #fff, 0 20px 60px rgba(74, 107, 158, 0.06);
+    backdrop-filter: blur(14px);
+  }
+  .footer__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.85fr 1.2fr;
+    gap: 2rem;
+    padding: 1.6rem 0 1.8rem;
+  }
+  .footer__label {
+    margin: 0 0 0.7rem;
+    color: #93a2b7;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .channels a {
+    display: inline-flex;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.65);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background 160ms ease, box-shadow 160ms ease;
+  }
+  .channels a:hover { background: #fff; box-shadow: 0 5px 14px rgba(92, 141, 245, 0.1); }
+  .footer__contact { font-size: 0.85rem; line-height: 1.7; }
+  .footer__contact a { color: var(--ink); border-bottom: 1px solid var(--line-strong); }
+  .wallet {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    line-height: 1.6;
+  }
+  .wallet code {
+    max-width: 100%;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 8px;
+    word-break: break-all;
+  }
+  .wallet-key {
+    padding: 0.35rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 999px;
+    color: var(--ink);
+    background: linear-gradient(180deg, #fff, #edf4ff);
+    box-shadow: inset 0 1px 0 #fff;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .wallet-key:hover { background: #fff; }
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 1000px) {
+    .hero { grid-template-columns: 1fr; grid-template-rows: auto auto auto; padding-top: 118px; gap: 1rem; }
+    .hero__copy { padding-bottom: 0; }
+    .hero h1 { font-size: clamp(4.2rem, 14vw, 8rem); }
+    .hero__visual { padding: 1rem 0 2rem; }
+    .portrait-card { width: min(100%, 390px); transform: rotate(0.8deg); }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .section__head { align-items: flex-start; }
+    .log-card { grid-template-columns: 5.5rem 6.5rem minmax(0, 1fr); gap: 1rem; }
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+    .footer__grid > :last-child { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 680px) {
+    .nav { top: 10px; width: calc(100% - 20px); justify-content: space-between; gap: 0; padding: 5px; }
+    .nav a { flex: 1; justify-content: center; padding: 0.6rem 0.35rem; font-size: 8px; letter-spacing: 0.06em; }
+    .nav a span:first-child { display: none; }
+    .hero { padding: 88px 18px 24px; }
+    .hero h1 { font-size: clamp(3.6rem, 18vw, 6rem); }
+    .hero__intro { margin-top: 1.3rem; font-size: 0.92rem; }
+    .hero__links { margin-top: 1.5rem; gap: 0.4rem; }
+    .hero__links a { padding: 0.58rem 0.7rem; font-size: 9px; }
+    .hero__foot { font-size: 7px; letter-spacing: 0.08em; }
+    .hero__foot span:nth-child(2) { display: none; }
+    .section { padding: 3.5rem 18px; }
+    .section--tint { margin: 0 8px; padding: 2.5rem 16px; border-radius: 26px; }
+    .section__head { display: block; margin-bottom: 1.7rem; }
+    .section h2 { font-size: clamp(3rem, 15vw, 4.5rem); }
+    .section__lede { margin-top: 1rem; }
+    .cards { grid-template-columns: 1fr; gap: 12px; }
+    .card { border-radius: 20px; }
+    .card__art { border-radius: 14px; }
+    .card h3 { font-size: 1.35rem; }
+    .log-card { grid-template-columns: 1fr; gap: 0.5rem; padding: 1.1rem; border-radius: 18px; }
+    .log-card__meta { display: flex; justify-content: space-between; }
+    .footer { margin: 0 8px 10px; padding: 1.5rem 16px 1rem; border-radius: 24px; }
+    .footer__grid { grid-template-columns: 1fr; gap: 1.3rem; }
+    .footer__grid > :last-child { grid-column: auto; }
+    .footer__bottom { flex-direction: column; gap: 0.4rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .card, .card__art img, .hero__links a, .card__link { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="ambient ambient--one" aria-hidden="true"></div>
+<div class="ambient ambient--two" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="is-active" href="#top"><span>00</span><span>demokira</span></a>
+  <a href="#music"><span>01</span><span>music</span></a>
+  <a href="#games"><span>02</span><span>games</span></a>
+  <a href="#log"><span>03</span><span>log</span></a>
+</header>
+
+<main>
+  <section class="hero" id="top" aria-labelledby="site-title">
+    <div class="hero__copy">
+      <p class="eyebrow">independent operator</p>
+      <h1 id="site-title">Demokira</h1>
+      <p class="hero__intro">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+      <nav class="hero__links" aria-label="Index">
+        <a href="#music"><span>01</span> music</a>
+        <a href="#games"><span>02</span> games</a>
+        <a href="#log"><span>03</span> log</a>
+      </nav>
+    </div>
+
+    <div class="hero__visual">
+      <span class="orb" aria-hidden="true"></span>
+      <figure class="portrait-card">
+        <div class="portrait-card__top"><span>portrait / 00</span><span>signal</span></div>
+        <img src="../assets/artist.jpg" alt="Sargis Dskhkunyan, Demokira">
+        <figcaption><span>Sargis Dskhkunyan</span><span>source / self</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="hero__foot">
+      <span>scroll to index ↓</span>
+      <a href="#music">01 / music</a>
+      <span>2026</span>
+    </div>
+  </section>
+
+  <section class="section" id="music" aria-labelledby="music-heading">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">01 / audio archive</p>
+        <h2 id="music-heading">Music</h2>
+      </div>
+      <p class="section__lede">Standalone releases and soundtracks for indie games — mine and other people's</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/best-of.jpg" alt="Selected works cover artwork">
+          <span class="card__tag">playlist</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>01 / playlist</span><span>2023—24</span></div>
+          <h3>Selected works</h3>
+          <p class="card__desc">A playlist featuring my favorite tracks from 2023 and 2024</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/demokira.jpg" alt="Demokira cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>02 / album</span><span>bandcamp</span></div>
+          <h3>Demokira</h3>
+          <p class="card__desc">An experimental ambient album focusing on a dark sound and unusual textures</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img class="center" src="../assets/covers/rekuiemu-ost.jpg" alt="Rekuiemu Nikki OST cover artwork">
+          <span class="card__tag">soundtrack</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>03 / soundtrack</span><span>bandcamp</span></div>
+          <h3>Rekuiemu Nikki OST</h3>
+          <p class="card__desc">A soundtrack inspired by the original Yume Nikki</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/choice.jpg" alt="Why Do Not I Have A Choice cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>04 / album</span><span>bandcamp</span></div>
+          <h3>Why Do Not I Have A Choice</h3>
+          <p class="card__desc">A solo piano album played live and improvised from start to finish</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/why-do-not-i-have-a-choice" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/hoax.jpg" alt="It Is Nothing Short Of A Hoax cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>05 / album</span><span>bandcamp</span></div>
+          <h3>It Is Nothing Short Of A Hoax</h3>
+          <p class="card__desc">An experimental breakcore album built on broken beats and ambient beds with sudden collapses</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/it-is-nothing-short-of-a-hoax" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card card--soon">
+        <div class="card__art">
+          <img src="../assets/covers/upcoming.jpg" alt="??? cover artwork">
+          <span class="card__tag">locked</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>06 / album</span><span>soon</span></div>
+          <h3>???</h3>
+          <p class="card__desc">An experimental noise rock album built on broken guitars and tape hiss. A voice keeps slipping out of tune</p>
+          <span class="card__link card__soon">soon</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section section--tint" id="games" aria-labelledby="games-heading">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">02 / interactive archive</p>
+        <h2 id="games-heading">Games</h2>
+      </div>
+      <p class="section__lede">Short narrative games from me, as well as other game jam projects</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/tv-show.jpg" alt="TV Show Or Die? cover artwork">
+          <span class="card__tag">visual novel</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>01 / visual novel</span><span>itch.io</span></div>
+          <h3>TV Show Or Die?</h3>
+          <p class="card__desc">Took 1st place in the soundtrack category with the soundtrack written by me</p>
+          <a class="card__link" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/soul-of-akstama.jpg" alt="Soul of Akstama cover artwork">
+          <span class="card__tag">visual novel</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>02 / visual novel</span><span>itch.io</span></div>
+          <h3>Soul of Akstama</h3>
+          <p class="card__desc">A short visual novel that tells the story of a mirror located in Akstama Castle</p>
+          <a class="card__link" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img class="center" src="../assets/covers/rekuiemu-nikki.jpg" alt="Rekuiemu Nikki cover artwork">
+          <span class="card__tag">surreal adventure</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>03 / surreal adventure</span><span>itch.io</span></div>
+          <h3>Rekuiemu Nikki</h3>
+          <p class="card__desc">A Yume Nikki fangame, about exploring the mind of young Julie</p>
+          <a class="card__link" href="https://eklsn.itch.io/reknikki" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="log" aria-labelledby="log-heading">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">03 / write buffer</p>
+        <h2 id="log-heading">Blog</h2>
+      </div>
+      <p class="section__lede">Short notes: work-in-progress updates, thoughts, breakdowns</p>
+    </div>
+
+    <div class="log-list">
+      <article class="log-card">
+        <div class="log-card__meta"><span>log 001</span><time datetime="2026-09-27">26-09-27</time></div>
+        <div>
+          <h3>It's quiet for now<span class="badge">new!</span></h3>
+          <p>I have so many ideas, but little time and a lack of inspiration to bring them to life.</p>
+          <p>You might be expecting something new from me, but there probably won't be anything until the end of the year.</p>
+        </div>
+      </article>
+      <article class="log-card">
+        <div class="log-card__meta"><span>log 002</span><time datetime="2026-08-05">26-08-05</time></div>
+        <div>
+          <h3>My personal page. I'm so glad!</h3>
+          <p>I’ve created my own page. I’ll try to populate it as things progress.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer__top"><span>04 / channels</span><span>signal out</span><span>2026</span></div>
+  <div class="footer__grid">
+    <div>
+      <p class="footer__label">channels</p>
+      <ul class="channels">
+        <li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener noreferrer">youtube</a></li>
+        <li><a href="https://demokira.itch.io" target="_blank" rel="noopener noreferrer">itch.io</a></li>
+        <li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener noreferrer">bandcamp</a></li>
+        <li><a href="https://www.tiktok.com/@demokira_?_r=1&amp;_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener noreferrer">tiktok</a></li>
+        <li><a href="https://www.instagram.com/srgsdshkhnn" target="_blank" rel="noopener noreferrer">instagram</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer__label">contact</p>
+      <p class="footer__contact"><a href="mailto:sargis.dshkhunyan@gmail.com">sargis.dshkhunyan@gmail.com</a></p>
+    </div>
+    <div>
+      <p class="footer__label">support</p>
+      <div class="wallet">
+        <span>USDT ERC-20</span>
+        <code class="wallet-value">0xeE617911771d9Ce4eA3d1679400DaCcA7949faa9</code>
+        <button class="wallet-key" type="button">copy</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer__bottom"><span>love and be loved © 2026 demokira</span><span>end of file / 00</span></div>
+</footer>
+
+<script>
+  document.querySelectorAll(".wallet-key").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var value = document.querySelector(".wallet-value").textContent.trim();
+      if (navigator.clipboard) navigator.clipboard.writeText(value);
+      button.textContent = "copied";
+      window.setTimeout(function () { button.textContent = "copy"; }, 1400);
+    });
+  });
+
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
+  var sections = ["top", "music", "games", "log"].map(function (id) {
+    return document.getElementById(id);
+  }).filter(Boolean);
+  if ("IntersectionObserver" in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+    sections.forEach(function (section) { spy.observe(section); });
+  }
+</script>
+</body>
+</html>
