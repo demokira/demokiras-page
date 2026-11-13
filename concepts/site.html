@@ -74,6 +74,35 @@
   .topbar a:first-child { border-left: 0; color: var(--paper); }
   .topbar a:hover,
   .topbar a.is-active { color: var(--paper); }
+  .bar-cursor {
+    display: inline-block;
+    margin-left: 0.1rem;
+    font-size: 8px;
+    line-height: 1;
+    animation: cursor-blink 1.05s steps(2, end) infinite;
+  }
+  @keyframes cursor-blink { 50% { opacity: 0; } }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .type-caret {
+    display: inline-block;
+    width: 0.52em;
+    height: 1.05em;
+    margin-left: 0.18em;
+    background: var(--paper);
+    vertical-align: -0.14em;
+    animation: cursor-blink 1.05s steps(2, end) infinite;
+  }
 
   /* ---------- hero ------------------------------------------------------- */
   .hero {
@@ -416,9 +445,20 @@
     aspect-ratio: 1;
     object-fit: cover;
     filter: grayscale(1) contrast(1.16) brightness(0.9);
-    transition: filter 180ms linear;
+    transition: filter 220ms linear, transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
   }
-  .file:hover .file__art img { filter: grayscale(1) contrast(1.3) brightness(1); }
+  .file:hover .file__art img { filter: grayscale(1) contrast(1.3) brightness(1); transform: scale(1.035); }
+  .file__art::before {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    content: "";
+    background: linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.09) 50%, transparent 100%);
+    transform: translateY(-105%);
+    transition: transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1);
+    pointer-events: none;
+  }
+  .file:hover .file__art::before { transform: translateY(105%); }
   .file__art::after {
     position: absolute;
     inset: 0;
@@ -479,7 +519,23 @@
     transition: color 140ms linear, border-color 140ms linear;
   }
   .file__link:hover { color: var(--ash); border-color: var(--ash); }
+  .file__link span { transition: transform 200ms ease; }
+  .file:hover .file__link span { transform: translate(3px, -3px); }
   .file__soon { color: var(--ash); border-bottom: 0; }
+
+  @media (hover: hover) and (pointer: fine) {
+    .file {
+      transition: transform 280ms cubic-bezier(0.2, 0.7, 0.2, 1), box-shadow 280ms linear, background-color 280ms linear;
+    }
+    .file:hover {
+      z-index: 2;
+      transform: translateY(-5px);
+      background: #12120f;
+      box-shadow: 0 0 0 1px var(--line-strong), 0 18px 34px rgba(0, 0, 0, 0.38);
+    }
+    .file:hover .file__top { background: rgba(255, 255, 255, 0.035); }
+    .file:hover .file__link { color: var(--paper); border-color: var(--paper); }
+  }
 
   /* paper insert for games */
   .section--paper {
@@ -626,6 +682,53 @@
     text-transform: uppercase;
   }
 
+  /* ---------- custom cursor --------------------------------------------- */
+  .cursor {
+    position: fixed;
+    z-index: 300;
+    top: 0;
+    left: 0;
+    width: 22px;
+    height: 22px;
+    margin: -11px 0 0 -11px;
+    border: 1px solid var(--paper);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: width 180ms ease, height 180ms ease, margin 180ms ease, opacity 180ms linear, background-color 180ms linear;
+  }
+  .cursor::before,
+  .cursor::after {
+    position: absolute;
+    content: "";
+    background: var(--paper);
+  }
+  .cursor::before { top: 9px; left: 3px; width: 14px; height: 1px; }
+  .cursor::after { top: 3px; left: 9px; width: 1px; height: 14px; }
+  .cursor__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 3px;
+    background: var(--paper);
+    transform: translate(-50%, -50%);
+  }
+  .cursor.is-visible { opacity: 1; }
+  .cursor.is-hover {
+    width: 42px;
+    height: 42px;
+    margin: -21px 0 0 -21px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  html.has-custom-cursor,
+  html.has-custom-cursor * { cursor: none; }
+
+  @media (pointer: coarse) {
+    .cursor { display: none; }
+  }
+
   @media (max-width: 900px) {
     .section__head { grid-template-columns: 1fr; gap: 1.2rem; align-items: start; }
     .section__lede { max-width: 100%; border-left: 0; padding-left: 0; }
@@ -680,15 +783,20 @@
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .status::before { animation: none; }
+    .bar-cursor,
+    .type-caret { animation: none; }
+    .type-caret { display: none; }
+    .cursor { transition: none; }
   }
 </style>
 </head>
 <body>
 <div class="scanlines" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__dot"></span></div>
 
 <header class="topbar">
   <nav aria-label="Sections">
-    <a class="is-active" href="#top"><span>00</span><span>demokira</span></a>
+    <a class="is-active" href="#top"><span>00</span><span>demokira</span><span class="bar-cursor" aria-hidden="true">▮</span></a>
     <a href="#music"><span>01</span><span>music</span></a>
     <a href="#games"><span>02</span><span>games</span></a>
     <a href="#log"><span>03</span><span>log</span></a>
@@ -707,7 +815,7 @@
       <p class="kicker">independent operator</p>
       <h1 class="title" id="site-title"><span>demo</span><span class="hollow">kira</span></h1>
       <p class="alias">Sargis Dskhkunyan</p>
-      <p class="intro">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+      <p class="intro"><span class="sr-only">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</span><span class="intro__typed" aria-hidden="true">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</span><span class="type-caret" aria-hidden="true"></span></p>
 
       <dl class="facts">
         <div><dt>output</dt><dd>games / music / video / ai</dd></div>
@@ -942,6 +1050,73 @@
 </footer>
 
 <script>
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  var typed = document.querySelector(".intro__typed");
+  var intro = typed ? typed.closest(".intro") : null;
+  var startTyping = function () {
+    if (!typed || !intro || reduceMotion) return;
+    var full = typed.textContent;
+    var height = intro.getBoundingClientRect().height;
+    intro.style.minHeight = height + "px";
+    typed.textContent = "";
+    var index = 0;
+    var type = function () {
+      typed.textContent = full.slice(0, index + 1);
+      index += 1;
+      if (index < full.length) window.setTimeout(type, 14);
+    };
+    window.setTimeout(type, 450);
+  };
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(startTyping);
+  } else {
+    startTyping();
+  }
+
+  if (window.matchMedia("(pointer: fine)").matches || (navigator.maxTouchPoints === 0 && window.innerWidth > 700)) {
+    document.documentElement.classList.add("has-custom-cursor");
+    var cursor = document.querySelector(".cursor");
+    var pointerX = 0;
+    var pointerY = 0;
+    var cursorX = 0;
+    var cursorY = 0;
+    var cursorVisible = false;
+    var cursorFrame = null;
+
+    var moveCursor = function () {
+      cursorX += (pointerX - cursorX) * 0.35;
+      cursorY += (pointerY - cursorY) * 0.35;
+      cursor.style.transform = "translate3d(" + cursorX + "px," + cursorY + "px,0)";
+      cursorFrame = window.requestAnimationFrame(moveCursor);
+    };
+    moveCursor();
+
+    document.addEventListener("mousemove", function (event) {
+      pointerX = event.clientX;
+      pointerY = event.clientY;
+      if (!cursorVisible) {
+        cursorVisible = true;
+        cursor.classList.add("is-visible");
+      }
+    });
+    document.addEventListener("mouseleave", function () {
+      cursorVisible = false;
+      cursor.classList.remove("is-visible");
+    });
+    document.addEventListener("mouseover", function (event) {
+      var hit = event.target.closest("a, button, .file");
+      if (hit && !hit.contains(event.relatedTarget)) cursor.classList.add("is-hover");
+    });
+    document.addEventListener("mouseout", function (event) {
+      var hit = event.target.closest("a, button, .file");
+      if (hit && !hit.contains(event.relatedTarget)) cursor.classList.remove("is-hover");
+    });
+    window.addEventListener("pagehide", function () {
+      if (cursorFrame) window.cancelAnimationFrame(cursorFrame);
+    });
+  }
+
   document.querySelectorAll(".wallet-key").forEach(function (button) {
     button.addEventListener("click", function () {
       var value = document.querySelector(".wallet-value").textContent.trim();
