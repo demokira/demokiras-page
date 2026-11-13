@@ -1,0 +1,934 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — cold archive draft</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@400;600;700&family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #070708;
+    --surface: #0d0d0f;
+    --ink: #e9e6dd;
+    --muted: #8f8c84;
+    --line: #2b2b2f;
+    --line-strong: #4a4a50;
+    --accent: #9fc9ff;
+    --accent-dim: rgba(159, 201, 255, 0.16);
+    --sans: "Archivo Narrow", "Arial Narrow", Arial, sans-serif;
+    --mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+    --pix: "Silkscreen", "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    position: fixed;
+    z-index: 998;
+    inset: 0;
+    content: "";
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.022) 0,
+      rgba(255, 255, 255, 0.022) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  body::after {
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    opacity: 0.07;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  ::selection { background: var(--accent); color: var(--bg); }
+
+  .grain {
+    position: fixed;
+    z-index: 0;
+    inset: -12%;
+    pointer-events: none;
+    opacity: 0.11;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.62' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+    will-change: transform;
+  }
+  .grain::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background:
+      repeating-linear-gradient(112deg, transparent 0 92px, rgba(255, 255, 255, 0.03) 92px 93px, transparent 93px 218px),
+      repeating-linear-gradient(24deg, transparent 0 140px, rgba(255, 255, 255, 0.018) 140px 141px, transparent 141px 320px);
+  }
+
+  /* ---------- rail navigation ------------------------------------------- */
+  .rail {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    width: 54px;
+    flex-direction: column;
+    align-items: center;
+    padding: 14px 0 12px;
+    border-right: 1px solid var(--line);
+    background: rgba(7, 7, 8, 0.94);
+  }
+  .rail__logo {
+    font-family: var(--pix);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.02em;
+  }
+  .rail__logo span {
+    display: block;
+    margin-top: 0.35rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.08em;
+  }
+  .rail__nav {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.35rem;
+    margin: 1.2rem 0;
+  }
+  .rail__nav a {
+    position: relative;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    line-height: 1;
+    text-transform: uppercase;
+    transition: color 160ms linear;
+    writing-mode: vertical-rl;
+  }
+  .rail__nav a:hover { color: var(--ink); }
+  .rail__nav a.is-active { color: var(--accent); }
+  .rail__nav a.is-active::before {
+    position: absolute;
+    top: -0.45rem;
+    left: 50%;
+    width: 1px;
+    height: 0.7rem;
+    content: "";
+    background: var(--accent);
+  }
+  .rail__foot {
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+  }
+
+  .main { margin-left: 54px; }
+
+  /* ---------- hero ------------------------------------------------------- */
+  .hero {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-height: 100svh;
+    flex-direction: column;
+    padding: 28px clamp(20px, 5vw, 78px) 18px;
+    border-bottom: 1px solid var(--line);
+    overflow: hidden;
+  }
+  .hero__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .hero__meta span:nth-child(2) { color: var(--accent); }
+  .hero__grid {
+    display: grid;
+    flex: 1;
+    grid-template-columns: minmax(0, 1.1fr) minmax(18rem, 0.9fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+    padding: clamp(2rem, 6vh, 5rem) 0;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 1.2rem;
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .eyebrow::before {
+    width: 7px;
+    height: 7px;
+    content: "";
+    background: var(--accent);
+  }
+  .hero h1 {
+    margin: 0 0 0 -0.04em;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(3.4rem, 6vw, 5.4rem);
+    font-weight: 700;
+    line-height: 0.82;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .hero__intro {
+    max-width: 43rem;
+    margin: 1.5rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: clamp(11px, 1vw, 13px);
+    line-height: 1.8;
+  }
+  .type-caret {
+    display: inline-block;
+    width: 0.5em;
+    height: 1em;
+    margin-left: 0.15em;
+    background: var(--accent);
+    vertical-align: -0.12em;
+    animation: caret-blink 1.05s steps(2, end) infinite;
+  }
+  @keyframes caret-blink { 50% { opacity: 0; } }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .hero__index {
+    border-top: 1px solid var(--line);
+  }
+  .hero__index a {
+    display: grid;
+    grid-template-columns: 2.4rem minmax(0, 1fr) auto;
+    gap: 0.8rem;
+    align-items: center;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 160ms linear, padding-left 160ms linear;
+  }
+  .hero__index a span:first-child { color: var(--muted); font-family: var(--pix); font-size: 7px; }
+  .hero__index a span:last-child { color: var(--muted); font-size: 8px; }
+  .hero__index a:hover { padding-left: 0.35rem; color: var(--accent); }
+  .hero__index a:hover span:first-child { color: var(--accent); }
+
+  .hero__foot {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .hero__foot .live { color: var(--accent); }
+  .hero__foot .live::before {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-right: 0.45rem;
+    content: "";
+    background: var(--accent);
+    vertical-align: 1px;
+  }
+
+  /* ---------- sections --------------------------------------------------- */
+  .section {
+    position: relative;
+    z-index: 1;
+    padding: clamp(3rem, 6vw, 6rem) clamp(20px, 5vw, 78px);
+    border-bottom: 1px solid var(--line);
+    scroll-margin-top: 20px;
+  }
+  .section__bar {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.65rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .section__bar span:first-child { color: var(--accent); }
+  .section__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: end;
+    padding: 1.7rem 0 1.8rem;
+  }
+  .section h2 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(2.6rem, 4.5vw, 4rem);
+    font-weight: 700;
+    line-height: 0.85;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .section__lede {
+    max-width: 28rem;
+    margin: 0 0 0.2rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--line-strong);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.75;
+  }
+
+  /* ---------- catalog ---------------------------------------------------- */
+  .catalog {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    border: 1px solid var(--line);
+    background: var(--line);
+  }
+  .entry {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    padding: 8px;
+    background: var(--bg);
+    transition: background 180ms linear, color 180ms linear;
+  }
+  .entry:hover {
+    color: var(--bg);
+    background: var(--ink);
+  }
+  .entry__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    transition: color 180ms linear, border-color 180ms linear;
+  }
+  .entry__top span:first-child { color: var(--accent); }
+  .entry:hover .entry__top { color: #3c3c42; border-color: rgba(7, 7, 8, 0.2); }
+  .entry:hover .entry__top span:first-child { color: #3c3c42; }
+  .entry__art {
+    position: relative;
+    margin: 7px 0 0;
+    overflow: hidden;
+    background: #171719;
+  }
+  .entry__art img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.25) brightness(0.82);
+    transition: filter 220ms linear, transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .entry:hover .entry__art img { filter: grayscale(1) contrast(1.35) brightness(0.95); transform: scale(1.025); }
+  .entry__art img.center { object-position: 60% 50%; }
+  .entry__tag {
+    position: absolute;
+    bottom: 0.45rem;
+    left: 0.45rem;
+    padding: 0.24rem 0.35rem;
+    border: 1px solid rgba(233, 230, 221, 0.34);
+    color: var(--ink);
+    background: rgba(7, 7, 8, 0.82);
+    font-family: var(--pix);
+    font-size: 6px;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .entry:hover .entry__tag { border-color: rgba(7, 7, 8, 0.35); color: var(--bg); background: rgba(233, 230, 221, 0.9); }
+  .entry--soon .entry__art img { filter: grayscale(1) contrast(0.9) brightness(0.7) blur(7px); }
+  .entry__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.7rem 0.15rem 0.1rem;
+  }
+  .entry h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(1.3rem, 1.55vw, 1.55rem);
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    transition: color 180ms linear;
+  }
+  .entry:hover h3 { color: var(--bg); }
+  .entry__desc {
+    margin: 0.55rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 9.5px;
+    line-height: 1.55;
+    transition: color 180ms linear;
+  }
+  .entry:hover .entry__desc { color: #3c3c42; }
+  .entry__link {
+    display: inline-flex;
+    align-self: flex-end;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: auto;
+    padding: 0.6rem 0 0.15rem;
+    border-bottom: 1px solid var(--line-strong);
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    transition: color 180ms linear, border-color 180ms linear;
+  }
+  .entry__link span { transition: transform 160ms ease; }
+  .entry__link:hover span { transform: translate(2px, -2px); }
+  .entry:hover .entry__link { color: var(--bg); border-color: var(--bg); }
+  .entry__soon { color: var(--muted); pointer-events: none; }
+
+  /* ---------- log -------------------------------------------------------- */
+  .log { border-top: 1px solid var(--line); }
+  .log__item {
+    display: grid;
+    grid-template-columns: 5rem 7rem minmax(0, 1fr);
+    gap: 1.3rem;
+    padding: 1.2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .log__meta {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .log__meta time { color: var(--ink); }
+  .log__body h3 {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(1.4rem, 1.9vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .log__body p {
+    max-width: 52rem;
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.7;
+  }
+  .new {
+    display: inline-block;
+    margin-left: 0.45rem;
+    padding: 0.16rem 0.3rem;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--pix);
+    font-size: 6px;
+    letter-spacing: 0.04em;
+    vertical-align: 0.16em;
+  }
+
+  /* ---------- footer ----------------------------------------------------- */
+  .footer {
+    position: relative;
+    z-index: 1;
+    padding: clamp(3rem, 6vw, 5.5rem) clamp(20px, 5vw, 78px) 1.4rem;
+  }
+  .footer__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .footer__top span:first-child { color: var(--accent); }
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr 0.8fr 1.2fr;
+    gap: 2rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .footer__label {
+    margin: 0 0 0.7rem;
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 7px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .footer__wordmark {
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(2.4rem, 4.5vw, 4rem);
+    font-weight: 700;
+    line-height: 0.82;
+    letter-spacing: -0.035em;
+    text-transform: uppercase;
+  }
+  .footer__index,
+  .channels {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 9px;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+  .footer__index a:hover,
+  .channels a:hover { color: var(--accent); }
+  .footer__contact { margin: 0; font-size: 9px; line-height: 1.7; }
+  .footer__contact a { border-bottom: 1px solid var(--line-strong); }
+  .wallet {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    line-height: 1.6;
+  }
+  .wallet code { max-width: 100%; color: var(--ink); font-family: var(--mono); font-size: 8px; word-break: break-all; }
+  .wallet-key {
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--line-strong);
+    color: var(--ink);
+    background: none;
+    font-family: var(--mono);
+    font-size: 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .wallet-key:hover { border-color: var(--accent); color: var(--accent); }
+  .footer__bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  /* ---------- cursor ----------------------------------------------------- */
+  .cursor {
+    position: fixed;
+    z-index: 300;
+    top: 0;
+    left: 0;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border: 1px solid var(--accent);
+    opacity: 0;
+    pointer-events: none;
+    mix-blend-mode: difference;
+    transition: width 160ms ease, height 160ms ease, margin 160ms ease, opacity 160ms linear, background-color 160ms linear;
+  }
+  .cursor::before,
+  .cursor::after { position: absolute; content: ""; background: var(--accent); }
+  .cursor::before { top: 8px; left: 2px; width: 12px; height: 1px; }
+  .cursor::after { top: 2px; left: 8px; width: 1px; height: 12px; }
+  .cursor__dot { position: absolute; top: 50%; left: 50%; width: 3px; height: 3px; background: var(--accent); transform: translate(-50%, -50%); }
+  .cursor.is-visible { opacity: 1; }
+  .cursor.is-hover { width: 34px; height: 34px; margin: -17px 0 0 -17px; background: var(--accent-dim); }
+  html.has-custom-cursor,
+  html.has-custom-cursor * { cursor: none; }
+
+  /* reveal */
+  .has-reveal .reveal { opacity: 0; transition: opacity 0.35s steps(3, end); transition-delay: var(--reveal-delay, 0ms); }
+  .has-reveal .reveal.is-in { opacity: 1; }
+
+  @media (max-width: 980px) {
+    .hero__grid { grid-template-columns: 1fr; gap: 2rem; }
+    .hero__index { max-width: 34rem; }
+    .catalog { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .section__head { grid-template-columns: 1fr; gap: 1rem; align-items: start; }
+    .section__lede { max-width: 100%; }
+    .footer__grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 760px) {
+    .rail {
+      right: 0;
+      bottom: auto;
+      width: 100%;
+      height: 48px;
+      flex-direction: row;
+      justify-content: space-between;
+      padding: 0 12px;
+      border-right: 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .rail__logo { font-size: 10px; }
+    .rail__logo span { display: none; }
+    .rail__nav {
+      flex: 1;
+      flex-direction: row;
+      justify-content: flex-end;
+      gap: 0;
+      height: 100%;
+      margin: 0;
+    }
+    .rail__nav a {
+      display: flex;
+      align-items: center;
+      height: 100%;
+      padding: 0 0.55rem;
+      border-left: 1px solid var(--line);
+      font-size: 7px;
+      letter-spacing: 0.06em;
+      writing-mode: horizontal-tb;
+    }
+    .rail__nav a.is-active::before { top: auto; bottom: 0; left: 0.55rem; width: calc(100% - 1.1rem); height: 1px; }
+    .rail__foot { display: none; }
+    .main { margin-left: 0; padding-top: 48px; }
+    .hero { min-height: 0; padding: 20px 18px 16px; }
+    .hero__meta { font-size: 6px; }
+    .hero h1 { font-size: clamp(3.4rem, 17vw, 5.4rem); }
+    .hero__intro { font-size: 10px; }
+    .hero__foot { font-size: 7px; }
+    .hero__foot span:nth-child(2) { display: none; }
+    .section { padding: 2.5rem 18px; }
+    .section__head { padding: 1.3rem 0; }
+    .section h2 { font-size: clamp(2.8rem, 14vw, 4rem); }
+    .catalog { grid-template-columns: 1fr; }
+    .log__item { grid-template-columns: 1fr; gap: 0.4rem; padding: 1rem 0; }
+    .log__meta { display: flex; justify-content: space-between; }
+    .footer { padding: 2.5rem 18px 1rem; }
+    .footer__grid { grid-template-columns: 1fr; gap: 1.4rem; }
+    .footer__bottom { flex-direction: column; gap: 0.35rem; }
+  }
+
+  @media (pointer: coarse) { .cursor { display: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .type-caret { display: none; }
+    .has-reveal .reveal { opacity: 1; transition: none; }
+    .entry, .entry__art img, .entry__link, .cursor { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<div class="cursor" aria-hidden="true"><span class="cursor__dot"></span></div>
+
+<aside class="rail">
+  <a class="rail__logo" href="#top">DK<span>00</span></a>
+  <nav class="rail__nav" aria-label="Sections">
+    <a class="is-active" href="#top">00 demokira</a>
+    <a href="#music">01 music</a>
+    <a href="#games">02 games</a>
+    <a href="#log">03 log</a>
+  </nav>
+  <span class="rail__foot">2026 / archive</span>
+</aside>
+
+<main class="main">
+  <section class="hero" id="top" aria-labelledby="site-title">
+    <div class="hero__meta"><span>00 / manifesto</span><span>cold archive / 2026</span><span>signal active</span></div>
+    <div class="hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">independent operator</p>
+        <h1 id="site-title">Demokira</h1>
+        <p class="hero__intro"><span class="sr-only">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</span><span class="typed" aria-hidden="true">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</span><span class="type-caret" aria-hidden="true"></span></p>
+      </div>
+      <nav class="hero__index" aria-label="Archive index">
+        <a href="#music"><span>01</span><span>music</span><span>06 files</span></a>
+        <a href="#games"><span>02</span><span>games</span><span>03 files</span></a>
+        <a href="#log"><span>03</span><span>log</span><span>02 entries</span></a>
+      </nav>
+    </div>
+    <div class="hero__foot"><span class="live">signal active</span><span>scroll to index ↓</span><span>sargis dskhkunyan / 2026</span></div>
+  </section>
+
+  <section class="section" id="music" aria-labelledby="music-heading">
+    <div class="section__bar"><span>01 / audio archive</span><span>side a</span><span>06 files</span></div>
+    <div class="section__head">
+      <h2 id="music-heading">Music</h2>
+      <p class="section__lede">Standalone releases and soundtracks for indie games — mine and other people's</p>
+    </div>
+    <div class="catalog">
+      <article class="entry reveal">
+        <div class="entry__top"><span>01 / playlist</span><span>2023—24</span></div>
+        <figure class="entry__art"><img src="../assets/covers/best-of.jpg" alt="Selected works cover artwork"><span class="entry__tag">playlist</span></figure>
+        <div class="entry__body"><h3>Selected works</h3><p class="entry__desc">A playlist featuring my favorite tracks from 2023 and 2024</p><a class="entry__link" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>02 / album</span><span>bandcamp</span></div>
+        <figure class="entry__art"><img src="../assets/covers/demokira.jpg" alt="Demokira cover artwork"><span class="entry__tag">album</span></figure>
+        <div class="entry__body"><h3>Demokira</h3><p class="entry__desc">An experimental ambient album focusing on a dark sound and unusual textures</p><a class="entry__link" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>03 / soundtrack</span><span>bandcamp</span></div>
+        <figure class="entry__art"><img class="center" src="../assets/covers/rekuiemu-ost.jpg" alt="Rekuiemu Nikki OST cover artwork"><span class="entry__tag">soundtrack</span></figure>
+        <div class="entry__body"><h3>Rekuiemu Nikki OST</h3><p class="entry__desc">A soundtrack inspired by the original Yume Nikki</p><a class="entry__link" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>04 / album</span><span>bandcamp</span></div>
+        <figure class="entry__art"><img src="../assets/covers/choice.jpg" alt="Why Do Not I Have A Choice cover artwork"><span class="entry__tag">album</span></figure>
+        <div class="entry__body"><h3>Why Do Not I Have A Choice</h3><p class="entry__desc">A solo piano album played live and improvised from start to finish</p><a class="entry__link" href="https://demokira.bandcamp.com/album/why-do-not-i-have-a-choice" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>05 / album</span><span>bandcamp</span></div>
+        <figure class="entry__art"><img src="../assets/covers/hoax.jpg" alt="It Is Nothing Short Of A Hoax cover artwork"><span class="entry__tag">album</span></figure>
+        <div class="entry__body"><h3>It Is Nothing Short Of A Hoax</h3><p class="entry__desc">An experimental breakcore album built on broken beats and ambient beds with sudden collapses</p><a class="entry__link" href="https://demokira.bandcamp.com/album/it-is-nothing-short-of-a-hoax" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry entry--soon reveal">
+        <div class="entry__top"><span>06 / album</span><span>locked</span></div>
+        <figure class="entry__art"><img src="../assets/covers/upcoming.jpg" alt="??? cover artwork"><span class="entry__tag">soon</span></figure>
+        <div class="entry__body"><h3>???</h3><p class="entry__desc">An experimental noise rock album built on broken guitars and tape hiss. A voice keeps slipping out of tune</p><span class="entry__link entry__soon">soon</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="games" aria-labelledby="games-heading">
+    <div class="section__bar"><span>02 / interactive archive</span><span>side b</span><span>03 files</span></div>
+    <div class="section__head">
+      <h2 id="games-heading">Games</h2>
+      <p class="section__lede">Short narrative games from me, as well as other game jam projects</p>
+    </div>
+    <div class="catalog">
+      <article class="entry reveal">
+        <div class="entry__top"><span>01 / visual novel</span><span>itch.io</span></div>
+        <figure class="entry__art"><img src="../assets/covers/tv-show.jpg" alt="TV Show Or Die? cover artwork"><span class="entry__tag">visual novel</span></figure>
+        <div class="entry__body"><h3>TV Show Or Die?</h3><p class="entry__desc">Took 1st place in the soundtrack category with the soundtrack written by me</p><a class="entry__link" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>02 / visual novel</span><span>itch.io</span></div>
+        <figure class="entry__art"><img src="../assets/covers/soul-of-akstama.jpg" alt="Soul of Akstama cover artwork"><span class="entry__tag">visual novel</span></figure>
+        <div class="entry__body"><h3>Soul of Akstama</h3><p class="entry__desc">A short visual novel that tells the story of a mirror located in Akstama Castle</p><a class="entry__link" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a></div>
+      </article>
+      <article class="entry reveal">
+        <div class="entry__top"><span>03 / surreal adventure</span><span>itch.io</span></div>
+        <figure class="entry__art"><img class="center" src="../assets/covers/rekuiemu-nikki.jpg" alt="Rekuiemu Nikki cover artwork"><span class="entry__tag">surreal adventure</span></figure>
+        <div class="entry__body"><h3>Rekuiemu Nikki</h3><p class="entry__desc">A Yume Nikki fangame, about exploring the mind of young Julie</p><a class="entry__link" href="https://eklsn.itch.io/reknikki" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="section" id="log" aria-labelledby="log-heading">
+    <div class="section__bar"><span>03 / write buffer</span><span>notes</span><span>02 entries</span></div>
+    <div class="section__head">
+      <h2 id="log-heading">Blog</h2>
+      <p class="section__lede">Short notes: work-in-progress updates, thoughts, breakdowns</p>
+    </div>
+    <div class="log">
+      <article class="log__item reveal">
+        <div class="log__meta"><span>log 001</span><time datetime="2026-09-27">26-09-27</time></div>
+        <div class="log__body"><h3>It's quiet for now<span class="new">new!</span></h3><p>I have so many ideas, but little time and a lack of inspiration to bring them to life.</p><p>You might be expecting something new from me, but there probably won't be anything until the end of the year.</p></div>
+      </article>
+      <article class="log__item reveal">
+        <div class="log__meta"><span>log 002</span><time datetime="2026-08-05">26-08-05</time></div>
+        <div class="log__body"><h3>My personal page. I'm so glad!</h3><p>I’ve created my own page. I’ll try to populate it as things progress.</p></div>
+      </article>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer__top"><span>04 / end of file</span><span>signal out</span><span>2026</span></div>
+    <div class="footer__grid">
+      <div><p class="footer__wordmark">Demokira</p><p class="footer__label">archive / 00—03</p></div>
+      <div><p class="footer__label">index</p><ul class="footer__index"><li><a href="#top">00 demokira</a></li><li><a href="#music">01 music</a></li><li><a href="#games">02 games</a></li><li><a href="#log">03 log</a></li></ul></div>
+      <div><p class="footer__label">channels</p><ul class="channels"><li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener noreferrer">youtube</a></li><li><a href="https://demokira.itch.io" target="_blank" rel="noopener noreferrer">itch.io</a></li><li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener noreferrer">bandcamp</a></li><li><a href="https://www.tiktok.com/@demokira_?_r=1&amp;_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener noreferrer">tiktok</a></li><li><a href="https://www.instagram.com/srgsdshkhnn" target="_blank" rel="noopener noreferrer">instagram</a></li></ul></div>
+      <div><p class="footer__label">contact / support</p><p class="footer__contact"><a href="mailto:sargis.dshkhunyan@gmail.com">sargis.dshkhunyan@gmail.com</a></p><div class="wallet"><span>USDT ERC-20</span><code class="wallet-value">0xeE617911771d9Ce4eA3d1679400DaCcA7949faa9</code><button class="wallet-key" type="button">copy</button></div></div>
+    </div>
+    <div class="footer__bottom"><span>love and be loved © 2026 demokira</span><span>end of file / 00</span></div>
+  </footer>
+</main>
+
+<script>
+  var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // typewriter manifesto
+  var typed = document.querySelector(".typed");
+  var intro = typed ? typed.closest(".hero__intro") : null;
+  var startTyping = function () {
+    if (!typed || !intro || reduceMotion) return;
+    var full = typed.textContent;
+    intro.style.minHeight = intro.getBoundingClientRect().height + "px";
+    typed.textContent = "";
+    var index = 0;
+    var type = function () {
+      typed.textContent = full.slice(0, index + 1);
+      index += 1;
+      if (index < full.length) window.setTimeout(type, 13);
+    };
+    window.setTimeout(type, 450);
+  };
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(startTyping);
+  else startTyping();
+
+  // soft fade reveal
+  var revealTargets = Array.prototype.slice.call(document.querySelectorAll(".reveal"));
+  if (revealTargets.length && !reduceMotion && "IntersectionObserver" in window) {
+    document.documentElement.classList.add("has-reveal");
+    revealTargets.forEach(function (el) {
+      el.style.setProperty("--reveal-delay", Math.min(Array.prototype.indexOf.call(el.parentElement.children, el), 5) * 30 + "ms");
+    });
+    var reveal = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-in");
+        reveal.unobserve(entry.target);
+      });
+    }, { threshold: 0.01 });
+    revealTargets.forEach(function (el) { reveal.observe(el); });
+  }
+
+  // active rail
+  var railLinks = Array.prototype.slice.call(document.querySelectorAll(".rail__nav a"));
+  var sections = ["top", "music", "games", "log"].map(function (id) { return document.getElementById(id); }).filter(Boolean);
+  if ("IntersectionObserver" in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        railLinks.forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+    sections.forEach(function (section) { spy.observe(section); });
+  }
+
+  // grain drift
+  var grain = document.querySelector(".grain");
+  if (grain && !reduceMotion) {
+    var grainY = 0;
+    var grainFrame = null;
+    var drift = function () {
+      var target = window.scrollY * 0.035;
+      grainY += (target - grainY) * 0.08;
+      grain.style.transform = "translate3d(0," + grainY + "px,0)";
+      grainFrame = window.requestAnimationFrame(drift);
+    };
+    drift();
+    window.addEventListener("pagehide", function () { if (grainFrame) window.cancelAnimationFrame(grainFrame); });
+  }
+
+  // custom cursor
+  if (window.matchMedia("(pointer: fine)").matches || (navigator.maxTouchPoints === 0 && window.innerWidth > 760)) {
+    document.documentElement.classList.add("has-custom-cursor");
+    var cursor = document.querySelector(".cursor");
+    var px = 0, py = 0, cx = 0, cy = 0, visible = false, frame = null;
+    var move = function () {
+      cx += (px - cx) * 0.35;
+      cy += (py - cy) * 0.35;
+      cursor.style.transform = "translate3d(" + cx + "px," + cy + "px,0)";
+      frame = window.requestAnimationFrame(move);
+    };
+    move();
+    document.addEventListener("mousemove", function (e) {
+      px = e.clientX; py = e.clientY;
+      if (!visible) { visible = true; cursor.classList.add("is-visible"); }
+    });
+    document.addEventListener("mouseleave", function () { visible = false; cursor.classList.remove("is-visible"); });
+    document.addEventListener("mouseover", function (e) {
+      var hit = e.target.closest("a, button, .entry");
+      if (hit && !hit.contains(e.relatedTarget)) cursor.classList.add("is-hover");
+    });
+    document.addEventListener("mouseout", function (e) {
+      var hit = e.target.closest("a, button, .entry");
+      if (hit && !hit.contains(e.relatedTarget)) cursor.classList.remove("is-hover");
+    });
+    window.addEventListener("pagehide", function () { if (frame) window.cancelAnimationFrame(frame); });
+  }
+
+  // wallet copy
+  document.querySelectorAll(".wallet-key").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var value = document.querySelector(".wallet-value").textContent.trim();
+      if (navigator.clipboard) navigator.clipboard.writeText(value);
+      button.textContent = "copied";
+      window.setTimeout(function () { button.textContent = "copy"; }, 1400);
+    });
+  });
+</script>
+</body>
+</html>
