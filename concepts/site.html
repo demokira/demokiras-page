@@ -667,6 +667,8 @@
     .section__title { font-size: clamp(3.5rem, 16vw, 5rem); }
     .section__rail { display: none; }
     .files { grid-template-columns: 1fr; }
+    .file__top { font-size: 6px; letter-spacing: 0.1em; }
+    .file__top span:last-child { display: none; }
     .file__body h3 { font-size: 1.55rem; }
     .log__item { grid-template-columns: 1fr; gap: 0.35rem; padding: 1.1rem 0; }
     .log__body { grid-column: auto; }
@@ -948,6 +950,22 @@
       window.setTimeout(function () { button.textContent = "copy"; }, 1400);
     });
   });
+
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".topbar a"));
+  var sections = ["top", "music", "games", "log"].map(function (id) {
+    return document.getElementById(id);
+  }).filter(Boolean);
+  if ("IntersectionObserver" in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+    sections.forEach(function (section) { spy.observe(section); });
+  }
 </script>
 </body>
 </html>
