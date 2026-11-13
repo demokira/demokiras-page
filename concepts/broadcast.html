@@ -1,0 +1,340 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — concept 02 / broadcast</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --ink: #0b0b0a;
+    --paper: #efede5;
+    --ash: #aaa59a;
+    --line: rgba(239, 237, 229, 0.25);
+    --bar-h: 52px;
+    --mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+    --sans: "Archivo Black", "Arial Black", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--ink); }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+
+  .topbar {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    height: var(--bar-h);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .topbar nav { display: flex; }
+  .topbar a {
+    display: flex;
+    align-items: center;
+    padding: 0 1.1rem;
+    border-left: 1px solid var(--line);
+    color: var(--ash);
+    transition: color 140ms linear;
+  }
+  .topbar a:first-child { border-left: 0; color: var(--paper); }
+  .topbar a:hover { color: var(--paper); }
+
+  .b-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100svh;
+    padding: calc(var(--bar-h) + 1.2rem) clamp(1.1rem, 5vw, 5rem) 0;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--ink);
+  }
+
+  .b-bg {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 34%;
+    filter: grayscale(1) contrast(1.28) brightness(0.52);
+  }
+
+  .b-hero::before {
+    position: absolute;
+    z-index: 1;
+    inset: 0;
+    content: "";
+    background:
+      linear-gradient(to top, var(--ink) 0%, rgba(11, 11, 10, 0.9) 17%, rgba(11, 11, 10, 0.2) 56%, rgba(11, 11, 10, 0.48) 100%),
+      linear-gradient(105deg, rgba(11, 11, 10, 0.8) 0%, rgba(11, 11, 10, 0.12) 58%, rgba(11, 11, 10, 0.3) 100%);
+    pointer-events: none;
+  }
+
+  .b-hero::after {
+    position: absolute;
+    z-index: 2;
+    inset: 0;
+    content: "";
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.035) 0,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    mix-blend-mode: screen;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  .b-top {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .b-top .live { color: var(--paper); }
+  .b-top .live::before {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-right: 0.5rem;
+    content: "";
+    background: var(--paper);
+    vertical-align: 1px;
+    animation: pulse 1.8s steps(2, end) infinite;
+  }
+  @keyframes pulse { 50% { opacity: 0; } }
+
+  .b-mark {
+    position: absolute;
+    z-index: 2;
+    top: calc(var(--bar-h) + 2.2rem);
+    right: clamp(0.6rem, 2.3vw, 2.5rem);
+    color: transparent;
+    font-family: var(--sans);
+    font-size: clamp(10rem, 25vw, 24rem);
+    font-weight: 400;
+    line-height: 0.72;
+    letter-spacing: -0.12em;
+    -webkit-text-stroke: 1px rgba(239, 237, 229, 0.14);
+    pointer-events: none;
+  }
+
+  .b-rail {
+    position: absolute;
+    z-index: 4;
+    top: 50%;
+    right: clamp(0.8rem, 2.2vw, 2.2rem);
+    margin: 0;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+  }
+
+  .b-cross {
+    position: absolute;
+    z-index: 3;
+    top: 48%;
+    left: 60%;
+    width: 64px;
+    height: 64px;
+    transform: translate(-50%, -50%);
+    opacity: 0.45;
+    pointer-events: none;
+  }
+  .b-cross::before,
+  .b-cross::after {
+    position: absolute;
+    content: "";
+    background: var(--paper);
+  }
+  .b-cross::before { top: 31px; left: 0; width: 64px; height: 1px; }
+  .b-cross::after { top: 0; left: 31px; width: 1px; height: 64px; }
+
+  .b-main {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(2rem, 8vh, 5rem) 0 1.3rem;
+  }
+
+  .b-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0 0 clamp(1.1rem, 2.5vh, 1.8rem);
+    color: #d7d3c9;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .b-kicker::before { width: 2.5rem; height: 1px; content: ""; background: var(--paper); }
+
+  .b-title {
+    margin: 0 0 0 -0.07em;
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: clamp(4.6rem, 17.2vw, 17rem);
+    font-weight: 400;
+    line-height: 0.74;
+    letter-spacing: -0.08em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    mix-blend-mode: difference;
+  }
+
+  .b-info {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    margin-top: clamp(1.5rem, 3.5vh, 2.4rem);
+  }
+
+  .b-intro {
+    max-width: 37rem;
+    margin: 0;
+    padding-left: 1rem;
+    border-left: 1px solid rgba(239, 237, 229, 0.45);
+    color: #e0dcd2;
+    font-size: clamp(0.88rem, 1.1vw, 1rem);
+    line-height: 1.65;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+  }
+
+  .b-coords {
+    display: grid;
+    gap: 0.42rem;
+    min-width: 15rem;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .b-coords div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px dotted rgba(239, 237, 229, 0.22); padding-bottom: 0.35rem; }
+  .b-coords span:last-child { color: var(--paper); text-align: right; }
+
+  .b-ticker {
+    position: relative;
+    z-index: 4;
+    display: flex;
+    width: calc(100% + 10rem);
+    margin-left: -5rem;
+    overflow: hidden;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .b-ticker span {
+    display: inline-block;
+    padding: 0.72rem 1.4rem;
+    animation: ticker 28s linear infinite;
+  }
+  .b-ticker span::after { content: "  /  demokira — independent operator — games — music — video — ai"; }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 800px) {
+    .b-hero { padding-top: calc(var(--bar-h) + 1rem); }
+    .b-top { font-size: 7px; letter-spacing: 0.1em; }
+    .b-top span:nth-child(2) { display: none; }
+    .b-mark { top: calc(var(--bar-h) + 1.2rem); font-size: 42vw; }
+    .b-rail { display: none; }
+    .b-cross { left: 72%; top: 42%; }
+    .b-main { padding-top: 2rem; padding-bottom: 1rem; }
+    .b-title { font-size: clamp(4.2rem, 17.5vw, 9rem); }
+    .b-info { display: block; margin-top: 1.4rem; }
+    .b-intro { max-width: 100%; font-size: 0.86rem; }
+    .b-coords { display: none; }
+    .b-ticker { width: calc(100% + 2rem); margin-left: -1rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .b-top .live::before { animation: none; }
+    .b-ticker span { animation: none; }
+  }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <nav aria-label="Sections">
+    <a href="#top"><span>00</span> <span>demokira</span></a>
+    <a href="../index.html#music"><span>01</span> <span>music</span></a>
+    <a href="../index.html#games"><span>02</span> <span>games</span></a>
+    <a href="../index.html#log"><span>03</span> <span>log</span></a>
+  </nav>
+</header>
+
+<main>
+  <section class="b-hero" id="top" aria-labelledby="site-title">
+    <img class="b-bg" src="../assets/artist.jpg" alt="Sargis Dskhkunyan, Demokira">
+    <p class="b-mark" aria-hidden="true">00</p>
+    <p class="b-rail">demokira — broadcast — 00</p>
+    <span class="b-cross" aria-hidden="true"></span>
+
+    <div class="b-top">
+      <span>00 / demokira</span>
+      <span class="live">signal live</span>
+      <span>draft 02 — broadcast</span>
+    </div>
+
+    <div class="b-main">
+      <p class="b-kicker">independent operator — sargis dskhkunyan</p>
+      <h1 class="b-title" id="site-title">demokira</h1>
+      <div class="b-info">
+        <p class="b-intro">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+        <div class="b-coords" aria-label="Index">
+          <div><span>output</span><span>games / music / video / ai</span></div>
+          <div><span>mode</span><span>independent</span></div>
+          <div><span>index</span><span>00—03</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="b-ticker" aria-hidden="true"><span></span><span></span></div>
+  </section>
+</main>
+</body>
+</html>
