@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — Y2K minimal draft</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Silkscreen:wght@400;700&family=Space+Mono:wght@400;700&display=swap');
+
+  :root {
+    --bg: #050505;
+    --surface: #15151b;
+    --surface-2: #1c1c24;
+    --ink: #f1efe8;
+    --muted: #b0ada5;
+    --line: #34343c;
+    --line-strong: #5a5a64;
+    --chrome: linear-gradient(90deg, #85858e 0%, #b9b9c2 25%, #d5d5dc 50%, #b9b9c2 75%, #85858e 100%);
+    --chrome-text: #08080a;
+    --shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+    --sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+    --mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+    --pix: "Silkscreen", "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--bg); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  body::before {
+    position: fixed;
+    z-index: 998;
+    inset: 0;
+    content: "";
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.025) 0,
+      rgba(255, 255, 255, 0.025) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+    opacity: 0.35;
+    pointer-events: none;
+  }
+  body::after {
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    content: "";
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  ::selection { background: var(--ink); color: var(--bg); }
+  .ambient { display: none; }
+
+  .nav {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    height: 52px;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid var(--line);
+    border-radius: 0;
+    background: #08080a;
+    box-shadow: none;
+    transform: none;
+  }
+  .nav a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    height: 100%;
+    padding: 0 1.1rem;
+    border-left: 1px solid var(--line);
+    border-radius: 0;
+    color: var(--muted);
+    background: none;
+    box-shadow: none;
+    font-family: var(--mono);
+    font-size: 9px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    transition: color 160ms linear;
+  }
+  .nav a:first-child { border-left: 0; }
+  .nav a span:first-child { color: #625f59; font-size: 8px; }
+  .nav a:hover { color: var(--ink); }
+  .nav a.is-active { position: relative; color: var(--ink); background: none; box-shadow: none; }
+  .nav a.is-active::after {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 0;
+    left: 1.1rem;
+    height: 1px;
+    content: "";
+    background: var(--ink);
+  }
+
+  .shell {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 32px));
+    margin: 84px auto 24px;
+  }
+
+  /* window panels */
+  .win {
+    margin: 0 0 12px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .win__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 27px;
+    padding: 4px 8px;
+    border-bottom: 1px solid #0a0a0a;
+    background: var(--chrome);
+    color: var(--chrome-text);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), inset 0 -1px 0 rgba(0, 0, 0, 0.24);
+    font-family: var(--pix);
+    font-size: 10px;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .win__bar span:last-child {
+    color: rgba(8, 8, 10, 0.62);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.06em;
+  }
+
+  /* hero */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: 2rem clamp(2rem, 5vw, 5rem);
+    min-height: 610px;
+    padding: clamp(28px, 4vw, 44px);
+    overflow: hidden;
+    background: var(--surface);
+  }
+  .hero::after {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    content: "";
+    background:
+      repeating-linear-gradient(112deg, transparent 0 92px, rgba(255, 255, 255, 0.022) 92px 93px, transparent 93px 218px),
+      repeating-linear-gradient(24deg, transparent 0 140px, rgba(255, 255, 255, 0.014) 140px 141px, transparent 141px 320px);
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+  .hero__copy {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.55rem;
+    margin: 0 0 1.3rem;
+    padding: 0;
+    border: 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .eyebrow::before {
+    width: 7px;
+    height: 7px;
+    content: "";
+    background: var(--ink);
+  }
+  .hero h1 {
+    margin: 0 0 0 -0.06em;
+    color: var(--ink);
+    font-size: clamp(4.2rem, 8.6vw, 8.6rem);
+    font-weight: 800;
+    line-height: 0.9;
+    letter-spacing: -0.075em;
+    text-shadow: 1px 0 rgba(255, 255, 255, 0.07), -1px 0 rgba(0, 0, 0, 0.9);
+  }
+  .hero__intro {
+    max-width: 34rem;
+    margin: 1.4rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.75;
+  }
+  .hero__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-top: 1.8rem;
+    border-top: 1px solid var(--line);
+  }
+  .hero__links a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 1.2rem;
+    padding: 0.65rem 0;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    color: var(--ink);
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: border-color 160ms linear;
+  }
+  .hero__links a span { color: var(--muted); font-size: 8px; }
+  .hero__links a:hover { border-color: var(--ink); }
+
+  .hero__visual {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+  }
+  .orb { display: none; }
+  .portrait-card {
+    position: relative;
+    width: min(100%, 390px);
+    margin: 0;
+    padding: 6px;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    background: #0d0d10;
+    box-shadow: 12px 14px 0 rgba(0, 0, 0, 0.32);
+  }
+  .portrait-card::before { display: none; }
+  .portrait-card::after { display: none; }
+  .portrait-card img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    border-radius: 0;
+    object-fit: cover;
+    object-position: 60% 38%;
+    filter: grayscale(1) contrast(1.3) brightness(0.78);
+    background: #171717;
+  }
+  .portrait-card__top,
+  .portrait-card figcaption {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0.35rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .portrait-card__top { padding-bottom: 0.55rem; }
+  .portrait-card figcaption { padding-top: 0.6rem; }
+  .portrait-card figcaption span:first-child { color: var(--ink); }
+
+  .hero__foot {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .hero__foot a { color: var(--ink); }
+
+  /* section body inside window */
+  .section {
+    padding: clamp(24px, 3.5vw, 38px);
+    background: var(--surface);
+    scroll-margin-top: 68px;
+  }
+  .section__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 1.8rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .section__kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.55rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .section__kicker::before {
+    width: 7px;
+    height: 7px;
+    content: "";
+    background: var(--ink);
+  }
+  .section h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: clamp(2.6rem, 5.2vw, 5rem);
+    font-weight: 800;
+    line-height: 0.92;
+    letter-spacing: -0.07em;
+    text-transform: uppercase;
+  }
+  .section h2::before {
+    content: "■";
+    color: var(--muted);
+    font-family: var(--pix);
+    font-size: 0.34em;
+    line-height: 1;
+    transform: translateY(-0.1em);
+  }
+  .section__lede {
+    max-width: 27rem;
+    margin: 0 0 0.25rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.7;
+  }
+
+  /* cards */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .card {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: #101014;
+    box-shadow: 4px 5px 0 rgba(0, 0, 0, 0.24);
+    transition: background 180ms linear, border-color 180ms linear, color 180ms linear, transform 180ms ease;
+  }
+  .card:hover {
+    border-color: #d5d5dc;
+    background: #d5d5dc;
+    color: #08080a;
+    transform: translateY(-2px);
+  }
+  .card__art {
+    position: relative;
+    overflow: hidden;
+    border-radius: 0;
+    background: #191919;
+  }
+  .card__art img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.3) brightness(0.8);
+    transition: filter 180ms linear;
+  }
+  .card:hover .card__art img { filter: grayscale(1) contrast(1.4) brightness(0.95); }
+  .card__art img.center { object-position: 60% 50%; }
+  .card__tag {
+    position: absolute;
+    right: 0.45rem;
+    bottom: 0.45rem;
+    padding: 0.25rem 0.4rem;
+    border: 1px solid rgba(240, 238, 231, 0.35);
+    border-radius: 0;
+    color: var(--ink);
+    background: rgba(8, 8, 8, 0.82);
+    box-shadow: none;
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .card--soon .card__art img {
+    filter: grayscale(1) contrast(0.9) brightness(0.7) blur(7px);
+    opacity: 0.8;
+  }
+  .card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.75rem 0.25rem 0.15rem;
+  }
+  .card__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.7rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .card h3 {
+    margin: 0.55rem 0 0;
+    color: var(--ink);
+    font-size: clamp(1.2rem, 1.45vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+  }
+  .card__desc {
+    margin: 0.55rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.55;
+  }
+  .card__link {
+    display: inline-flex;
+    align-self: flex-end;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding: 0.55rem 0 0.15rem;
+    border: 0;
+    border-bottom: 1px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--ink);
+    background: none;
+    box-shadow: none;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    transition: border-color 160ms linear, color 160ms linear;
+  }
+  .card__link span { transition: transform 160ms ease; }
+  .card__link:hover { border-color: currentColor; }
+  .card__link:hover span { transform: translate(2px, -2px); }
+  .card__soon { color: var(--muted); pointer-events: none; }
+  .card:hover .card__meta,
+  .card:hover .card__desc,
+  .card:hover .card__tag { color: #3c3c42; }
+  .card:hover .card__tag { border-color: #5a5a64; background: rgba(213, 213, 220, 0.9); color: #08080a; }
+  .card:hover .card__link { color: #08080a; border-color: #08080a; }
+  .card:hover h3 { color: #08080a; }
+
+  /* log */
+  .log-list { display: grid; gap: 8px; }
+  .log-card {
+    display: grid;
+    grid-template-columns: 7rem 8rem minmax(0, 1fr);
+    gap: 1.2rem;
+    align-items: start;
+    padding: 1rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: #101014;
+    box-shadow: 3px 4px 0 rgba(0, 0, 0, 0.2);
+  }
+  .log-card__meta {
+    display: grid;
+    gap: 0.25rem;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .log-card time { color: var(--ink); }
+  .log-card h3 {
+    margin: 0;
+    color: var(--ink);
+    font-size: clamp(1.2rem, 1.55vw, 1.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+  }
+  .log-card p {
+    max-width: 48rem;
+    margin: 0.5rem 0 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.65;
+  }
+  .badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0.15rem 0.3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--ink);
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 7px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    vertical-align: 0.16em;
+  }
+
+  /* widgets */
+  .widgets {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .box {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    box-shadow: var(--shadow);
+  }
+  .box__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    min-height: 25px;
+    padding: 3px 7px;
+    border-bottom: 1px solid #0a0a0a;
+    background: var(--chrome);
+    color: var(--chrome-text);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7), inset 0 -1px 0 rgba(0, 0, 0, 0.22);
+    font-family: var(--pix);
+    font-size: 9px;
+    letter-spacing: 0.04em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .box__bar-note {
+    color: rgba(8, 8, 10, 0.6);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.04em;
+    text-transform: none;
+  }
+  .box__body { padding: 9px 10px 10px; }
+  .sns-list {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--mono);
+    font-size: 10px;
+    line-height: 1.5;
+  }
+  .sns-list a:hover { text-decoration: underline; }
+  .cal-month { margin: 0 0 0.4rem; color: var(--muted); font-family: var(--mono); font-size: 8px; text-transform: uppercase; }
+  .cal-grid { width: 100%; border-collapse: collapse; table-layout: fixed; font-family: var(--mono); font-size: 8px; text-align: center; }
+  .cal-grid th { padding: 0.15rem 0; color: var(--muted); font-weight: 400; text-transform: uppercase; }
+  .cal-grid td { padding: 0.18rem 0; color: var(--ink); }
+  .cal-grid td.is-today { outline: 1px solid var(--ink); outline-offset: -1px; }
+  .clock { margin: 0.55rem 0 0; color: var(--muted); font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; }
+  .visitor-count { color: var(--ink); font-family: var(--pix); font-size: 18px; letter-spacing: 0.08em; }
+  .visitor-body { display: flex; min-height: 96px; flex-direction: column; align-items: center; justify-content: center; gap: 0.35rem; text-align: center; }
+  .visitor-note { color: var(--muted); font-family: var(--mono); font-size: 7px; letter-spacing: 0.06em; text-transform: uppercase; }
+  .wallet { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; color: var(--muted); font-family: var(--mono); font-size: 8px; line-height: 1.5; }
+  .wallet code { max-width: 100%; color: var(--ink); font-family: var(--mono); font-size: 8px; word-break: break-all; }
+  .wallet-key {
+    padding: 0.25rem 0.4rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 0;
+    color: var(--ink);
+    background: none;
+    font-family: var(--mono);
+    font-size: 8px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .wallet-key:hover { background: var(--ink); color: var(--bg); }
+
+  .site-footer {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.6rem 0.2rem 0;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 980px) {
+    .hero { grid-template-columns: 1fr; min-height: 0; }
+    .hero__visual { padding: 0.5rem 0 0; }
+    .portrait-card { width: min(100%, 360px); }
+    .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .widgets { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
+  @media (max-width: 680px) {
+    .nav { height: 48px; }
+    .nav a { flex: 1; justify-content: center; padding: 0 0.3rem; font-size: 8px; letter-spacing: 0.05em; }
+    .nav a span:first-child { display: none; }
+    .nav a.is-active::after { right: 0.35rem; left: 0.35rem; }
+    .shell { width: calc(100% - 16px); margin-top: 64px; }
+    .win__bar { min-height: 24px; font-size: 9px; }
+    .win__bar span:last-child { font-size: 7px; }
+    .hero { padding: 20px 16px 18px; }
+    .hero h1 { font-size: clamp(3.2rem, 17vw, 5.4rem); }
+    .hero__intro { font-size: 10px; }
+    .hero__links a { margin-right: 1rem; padding: 0.55rem 0; font-size: 8px; }
+    .hero__foot { font-size: 7px; }
+    .hero__foot span:nth-child(2) { display: none; }
+    .section { padding: 20px 16px 22px; }
+    .section__head { display: block; margin-bottom: 1.3rem; }
+    .section h2 { font-size: clamp(2.6rem, 14vw, 4rem); }
+    .section__lede { margin-top: 0.8rem; }
+    .cards { grid-template-columns: 1fr; gap: 8px; }
+    .card { padding: 7px; }
+    .log-card { grid-template-columns: 1fr; gap: 0.4rem; padding: 0.9rem; }
+    .log-card__meta { display: flex; justify-content: space-between; }
+    .widgets { grid-template-columns: 1fr; gap: 8px; }
+    .site-footer { flex-direction: column; gap: 0.3rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .card, .card__art img, .hero__links a, .card__link { transition: none; }
+  }
+
+</style>
+</head>
+<body>
+<div class="ambient ambient--one" aria-hidden="true"></div>
+<div class="ambient ambient--two" aria-hidden="true"></div>
+
+<header class="nav">
+  <a class="is-active" href="#top"><span>00</span><span>demokira</span></a>
+  <a href="#music"><span>01</span><span>music</span></a>
+  <a href="#games"><span>02</span><span>games</span></a>
+  <a href="#log"><span>03</span><span>log</span></a>
+</header>
+
+<div class="shell">
+<main>
+  <section class="win win--hero" id="top" aria-labelledby="site-title">
+    <div class="win__bar"><span>Home</span><span>00 / demokira</span></div>
+    <div class="hero">
+    <div class="hero__copy">
+      <p class="eyebrow">independent operator</p>
+      <h1 id="site-title">Demokira</h1>
+      <p class="hero__intro">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+    </div>
+
+    <div class="hero__visual">
+      <span class="orb" aria-hidden="true"></span>
+      <figure class="portrait-card">
+        <div class="portrait-card__top"><span>portrait / 00</span><span>signal</span></div>
+        <img src="../assets/artist.jpg" alt="Sargis Dskhkunyan, Demokira">
+        <figcaption><span>Sargis Dskhkunyan</span><span>source / self</span></figcaption>
+      </figure>
+    </div>
+
+    <div class="hero__foot">
+      <span>scroll to index ↓</span>
+      <a href="#music">01 / music</a>
+      <span>2026</span>
+    </div>
+    </div>
+  </section>
+
+  <section class="win" id="music" aria-labelledby="music-heading">
+    <div class="win__bar"><span>Music</span><span>01 / audio archive</span></div>
+    <div class="section">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">01 / audio archive</p>
+        <h2 id="music-heading">Music</h2>
+      </div>
+      <p class="section__lede">Standalone releases and soundtracks for indie games — mine and other people's</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/best-of.jpg" alt="Selected works cover artwork">
+          <span class="card__tag">playlist</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>01 / playlist</span><span>2023—24</span></div>
+          <h3>Selected works</h3>
+          <p class="card__desc">A playlist featuring my favorite tracks from 2023 and 2024</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/demokira.jpg" alt="Demokira cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>02 / album</span><span>bandcamp</span></div>
+          <h3>Demokira</h3>
+          <p class="card__desc">An experimental ambient album focusing on a dark sound and unusual textures</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img class="center" src="../assets/covers/rekuiemu-ost.jpg" alt="Rekuiemu Nikki OST cover artwork">
+          <span class="card__tag">soundtrack</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>03 / soundtrack</span><span>bandcamp</span></div>
+          <h3>Rekuiemu Nikki OST</h3>
+          <p class="card__desc">A soundtrack inspired by the original Yume Nikki</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/choice.jpg" alt="Why Do Not I Have A Choice cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>04 / album</span><span>bandcamp</span></div>
+          <h3>Why Do Not I Have A Choice</h3>
+          <p class="card__desc">A solo piano album played live and improvised from start to finish</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/why-do-not-i-have-a-choice" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/hoax.jpg" alt="It Is Nothing Short Of A Hoax cover artwork">
+          <span class="card__tag">album</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>05 / album</span><span>bandcamp</span></div>
+          <h3>It Is Nothing Short Of A Hoax</h3>
+          <p class="card__desc">An experimental breakcore album built on broken beats and ambient beds with sudden collapses</p>
+          <a class="card__link" href="https://demokira.bandcamp.com/album/it-is-nothing-short-of-a-hoax" target="_blank" rel="noopener noreferrer">listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card card--soon">
+        <div class="card__art">
+          <img src="../assets/covers/upcoming.jpg" alt="??? cover artwork">
+          <span class="card__tag">locked</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>06 / album</span><span>soon</span></div>
+          <h3>???</h3>
+          <p class="card__desc">An experimental noise rock album built on broken guitars and tape hiss. A voice keeps slipping out of tune</p>
+          <span class="card__link card__soon">soon</span>
+        </div>
+      </article>
+    </div>
+  </div>
+  </section>
+
+  <section class="win" id="games" aria-labelledby="games-heading">
+    <div class="win__bar"><span>Games</span><span>02 / interactive archive</span></div>
+    <div class="section">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">02 / interactive archive</p>
+        <h2 id="games-heading">Games</h2>
+      </div>
+      <p class="section__lede">Short narrative games from me, as well as other game jam projects</p>
+    </div>
+
+    <div class="cards">
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/tv-show.jpg" alt="TV Show Or Die? cover artwork">
+          <span class="card__tag">visual novel</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>01 / visual novel</span><span>itch.io</span></div>
+          <h3>TV Show Or Die?</h3>
+          <p class="card__desc">Took 1st place in the soundtrack category with the soundtrack written by me</p>
+          <a class="card__link" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img src="../assets/covers/soul-of-akstama.jpg" alt="Soul of Akstama cover artwork">
+          <span class="card__tag">visual novel</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>02 / visual novel</span><span>itch.io</span></div>
+          <h3>Soul of Akstama</h3>
+          <p class="card__desc">A short visual novel that tells the story of a mirror located in Akstama Castle</p>
+          <a class="card__link" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="card__art">
+          <img class="center" src="../assets/covers/rekuiemu-nikki.jpg" alt="Rekuiemu Nikki cover artwork">
+          <span class="card__tag">surreal adventure</span>
+        </div>
+        <div class="card__body">
+          <div class="card__meta"><span>03 / surreal adventure</span><span>itch.io</span></div>
+          <h3>Rekuiemu Nikki</h3>
+          <p class="card__desc">A Yume Nikki fangame, about exploring the mind of young Julie</p>
+          <a class="card__link" href="https://eklsn.itch.io/reknikki" target="_blank" rel="noopener noreferrer">play <span aria-hidden="true">↗</span></a>
+        </div>
+      </article>
+    </div>
+  </div>
+  </section>
+
+  <section class="win" id="log" aria-labelledby="log-heading">
+    <div class="win__bar"><span>Blog</span><span>03 / write buffer</span></div>
+    <div class="section">
+    <div class="section__head">
+      <div>
+        <p class="section__kicker">03 / write buffer</p>
+        <h2 id="log-heading">Blog</h2>
+      </div>
+      <p class="section__lede">Short notes: work-in-progress updates, thoughts, breakdowns</p>
+    </div>
+
+    <div class="log-list">
+      <article class="log-card">
+        <div class="log-card__meta"><span>log 001</span><time datetime="2026-09-27">26-09-27</time></div>
+        <div>
+          <h3>It's quiet for now<span class="badge">new!</span></h3>
+          <p>I have so many ideas, but little time and a lack of inspiration to bring them to life.</p>
+          <p>You might be expecting something new from me, but there probably won't be anything until the end of the year.</p>
+        </div>
+      </article>
+      <article class="log-card">
+        <div class="log-card__meta"><span>log 002</span><time datetime="2026-08-05">26-08-05</time></div>
+        <div>
+          <h3>My personal page. I'm so glad!</h3>
+          <p>I’ve created my own page. I’ll try to populate it as things progress.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+  </section>
+</main>
+
+<section class="widgets" aria-label="Site widgets">
+  <div class="box">
+    <div class="box__bar">Social Media</div>
+    <div class="box__body">
+      <ul class="sns-list">
+        <li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener noreferrer">» youtube</a></li>
+        <li><a href="https://demokira.itch.io" target="_blank" rel="noopener noreferrer">» itch.io</a></li>
+        <li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener noreferrer">» bandcamp</a></li>
+        <li><a href="https://www.tiktok.com/@demokira_?_r=1&amp;_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener noreferrer">» tiktok</a></li>
+        <li><a href="https://www.instagram.com/srgsdshkhnn" target="_blank" rel="noopener noreferrer">» instagram</a></li>
+        <li><a href="mailto:sargis.dshkhunyan@gmail.com">» email</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box__bar">Calendar</div>
+    <div class="box__body">
+      <p class="cal-month" id="cal-month"></p>
+      <table class="cal-grid">
+        <thead><tr><th>mo</th><th>tu</th><th>we</th><th>th</th><th>fr</th><th>sa</th><th>su</th></tr></thead>
+        <tbody id="cal-days"></tbody>
+      </table>
+      <p class="clock" id="clock">--:--:--</p>
+    </div>
+  </div>
+  <div class="box">
+    <div class="box__bar">Visitors</div>
+    <div class="box__body visitor-body"><span class="visitor-count">0000000</span><span class="visitor-note">unique hits / 2026</span></div>
+  </div>
+  <div class="box">
+    <div class="box__bar">Donate <span class="box__bar-note">USDT ERC-20</span></div>
+    <div class="box__body">
+      <div class="wallet">
+        <code class="wallet-value">0xeE617911771d9Ce4eA3d1679400DaCcA7949faa9</code>
+        <button class="wallet-key" type="button">copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <p>love and be loved © 2026 demokira</p>
+  <p>end of file / 00</p>
+</footer>
+</div>
+
+<script>
+  var calMonth = document.getElementById("cal-month");
+  var calDays = document.getElementById("cal-days");
+  if (calMonth && calDays) {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth();
+    var monthName = now.toLocaleString("en", { month: "long" });
+    calMonth.textContent = monthName + " " + year;
+    var first = new Date(year, month, 1);
+    var offset = (first.getDay() + 6) % 7;
+    var total = new Date(year, month + 1, 0).getDate();
+    var cells = [];
+    for (var i = 0; i < offset; i += 1) cells.push("<td></td>");
+    for (var day = 1; day <= total; day += 1) {
+      var today = day === now.getDate() ? ' class="is-today"' : "";
+      cells.push("<td" + today + ">" + day + "</td>");
+    }
+    while (cells.length % 7 !== 0) cells.push("<td></td>");
+    var rows = [];
+    for (var j = 0; j < cells.length; j += 7) rows.push("<tr>" + cells.slice(j, j + 7).join("") + "</tr>");
+    calDays.innerHTML = rows.join("");
+  }
+  var clock = document.getElementById("clock");
+  if (clock) {
+    var tick = function () {
+      var d = new Date();
+      clock.textContent = [d.getHours(), d.getMinutes(), d.getSeconds()].map(function (n) {
+        return String(n).padStart(2, "0");
+      }).join(":");
+    };
+    tick();
+    window.setInterval(tick, 1000);
+  }
+
+  document.querySelectorAll(".wallet-key").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var value = document.querySelector(".wallet-value").textContent.trim();
+      if (navigator.clipboard) navigator.clipboard.writeText(value);
+      button.textContent = "copied";
+      window.setTimeout(function () { button.textContent = "copy"; }, 1400);
+    });
+  });
+
+  var navLinks = Array.prototype.slice.call(document.querySelectorAll(".nav a"));
+  var sections = ["top", "music", "games", "log"].map(function (id) {
+    return document.getElementById(id);
+  }).filter(Boolean);
+  if ("IntersectionObserver" in window && sections.length) {
+    var spy = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        navLinks.forEach(function (link) {
+          link.classList.toggle("is-active", link.getAttribute("href") === "#" + entry.target.id);
+        });
+      });
+    }, { rootMargin: "-45% 0px -50% 0px", threshold: 0 });
+    sections.forEach(function (section) { spy.observe(section); });
+  }
+</script>
+</body>
+</html>
