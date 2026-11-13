@@ -1,0 +1,953 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Demokira — dossier draft</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Archivo:wght@400;500&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+  :root {
+    --ink: #0b0b0a;
+    --paper: #efede5;
+    --ash: #969289;
+    --line: rgba(239, 237, 229, 0.2);
+    --line-strong: rgba(239, 237, 229, 0.5);
+    --bar-h: 52px;
+    --mono: "Space Mono", ui-monospace, "SFMono-Regular", monospace;
+    --sans: "Archivo Black", "Arial Black", sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; background: var(--ink); }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--mono);
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; }
+  ::selection { background: var(--paper); color: var(--ink); }
+
+  .scanlines {
+    position: fixed;
+    z-index: 90;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.028) 0,
+      rgba(255, 255, 255, 0.028) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    opacity: 0.65;
+  }
+
+  .topbar {
+    position: fixed;
+    z-index: 100;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    height: var(--bar-h);
+    border-bottom: 1px solid var(--line);
+    background: var(--ink);
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+  .topbar nav { display: flex; }
+  .topbar a {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0 1.1rem;
+    border-left: 1px solid var(--line);
+    color: var(--ash);
+    transition: color 140ms linear;
+  }
+  .topbar a:first-child { border-left: 0; color: var(--paper); }
+  .topbar a:hover,
+  .topbar a.is-active { color: var(--paper); }
+
+  /* ---------- hero ------------------------------------------------------- */
+  .hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    gap: 0 clamp(1.5rem, 4vw, 4.5rem);
+    min-height: 100svh;
+    padding: calc(var(--bar-h) + 1.2rem) clamp(1.1rem, 4.2vw, 4.5rem) 0;
+    overflow: hidden;
+  }
+  .hero::before {
+    position: absolute;
+    z-index: 0;
+    bottom: -0.27em;
+    left: -0.09em;
+    content: "00";
+    color: transparent;
+    font-family: var(--sans);
+    font-size: clamp(18rem, 42vw, 44rem);
+    font-weight: 400;
+    line-height: 0.7;
+    letter-spacing: -0.12em;
+    -webkit-text-stroke: 1px rgba(239, 237, 229, 0.11);
+    pointer-events: none;
+  }
+  .hero__meta {
+    position: relative;
+    z-index: 2;
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.85rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .hero__meta span:nth-child(2) { color: var(--paper); }
+  .status { display: inline-flex; align-items: center; gap: 0.55rem; }
+  .status::before {
+    width: 6px;
+    height: 6px;
+    content: "";
+    background: var(--paper);
+    animation: blink 1.9s steps(2, end) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .hero__main {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(2.4rem, 8vh, 5.5rem) 0 clamp(2rem, 5vh, 3.5rem);
+  }
+  .kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0 0 clamp(1.4rem, 3vh, 2.2rem);
+    color: var(--ash);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .kicker::before { width: 2rem; height: 1px; content: ""; background: var(--ash); }
+  .title {
+    margin: 0;
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: clamp(4.7rem, 11.8vw, 12.8rem);
+    font-weight: 400;
+    line-height: 0.76;
+    letter-spacing: -0.075em;
+    text-transform: uppercase;
+  }
+  .title span { display: block; }
+  .title .hollow {
+    margin-left: clamp(0.5rem, 3.8vw, 4.2rem);
+    color: transparent;
+    -webkit-text-stroke: 1px var(--paper);
+  }
+  .alias {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: clamp(1.3rem, 3vh, 2rem) 0 0;
+    color: var(--ash);
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+  .alias::after { width: 4.5rem; height: 1px; content: ""; background: var(--line); }
+  .intro {
+    max-width: 35rem;
+    margin: clamp(1.6rem, 4vh, 2.6rem) 0 0;
+    color: #d8d4ca;
+    font-size: clamp(0.9rem, 1.12vw, 1.02rem);
+    line-height: 1.7;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0 1.4rem;
+    max-width: 43rem;
+    margin: clamp(2rem, 5vh, 3.4rem) 0 0;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--line);
+    font-size: 8px;
+    letter-spacing: 0.13em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .facts div {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.55rem 0;
+    border-bottom: 1px dotted rgba(239, 237, 229, 0.16);
+  }
+  .facts dt { color: var(--ash); }
+  .facts dd { margin: 0; text-align: right; }
+
+  .hero__right {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    min-width: 0;
+    padding: clamp(1.2rem, 4vh, 2.8rem) 0 clamp(2rem, 5vh, 3.5rem);
+  }
+  .portrait {
+    position: relative;
+    flex: 1;
+    min-height: 58vh;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    background: #111;
+  }
+  .portrait img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 60% 38%;
+    filter: grayscale(1) contrast(1.22) brightness(0.8);
+  }
+  .portrait::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background:
+      repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0, rgba(0, 0, 0, 0.08) 1px, transparent 1px, transparent 3px),
+      linear-gradient(to top, rgba(11, 11, 10, 0.62), transparent 34%);
+    pointer-events: none;
+  }
+  .portrait__tag {
+    position: absolute;
+    z-index: 2;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.36rem 0.48rem;
+    border: 1px solid rgba(239, 237, 229, 0.35);
+    color: var(--paper);
+    background: rgba(11, 11, 10, 0.55);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .reticle {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    transform: translate(-50%, -50%);
+    opacity: 0.7;
+  }
+  .reticle::before,
+  .reticle::after { position: absolute; content: ""; background: var(--paper); }
+  .reticle::before { top: 16px; left: 0; width: 34px; height: 1px; }
+  .reticle::after { top: 0; left: 16px; width: 1px; height: 34px; }
+  .portrait figcaption {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0.8rem;
+    border-top: 1px solid rgba(239, 237, 229, 0.28);
+    color: #d2cec4;
+    background: rgba(11, 11, 10, 0.72);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .side {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    right: -0.15rem;
+    margin: 0;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    transform: translateY(-50%);
+    writing-mode: vertical-rl;
+  }
+  .hero__foot {
+    position: relative;
+    z-index: 2;
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1rem 0 1.35rem;
+    border-top: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.17em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .hero__links { display: flex; flex-wrap: wrap; gap: 0.4rem 1.3rem; }
+  .hero__links a { transition: color 140ms linear; }
+  .hero__links a:hover { color: var(--paper); }
+  .hero__foot .scroll { color: var(--paper); }
+
+  /* ---------- sections --------------------------------------------------- */
+  .section {
+    position: relative;
+    padding: clamp(3.5rem, 8vh, 6rem) clamp(1.1rem, 4.2vw, 4.5rem) clamp(3rem, 7vh, 5rem);
+    border-top: 1px solid var(--line);
+    scroll-margin-top: calc(var(--bar-h) + 1rem);
+  }
+  .section__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .section__head {
+    position: static;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(16rem, 0.42fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: end;
+    padding: clamp(2rem, 4.5vh, 3.5rem) 0 clamp(2rem, 4vh, 3rem);
+  }
+  .section__title {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: clamp(4rem, 8.5vw, 8.5rem);
+    font-weight: 400;
+    line-height: 0.78;
+    letter-spacing: -0.07em;
+    text-transform: uppercase;
+  }
+  .section__lede {
+    max-width: 30rem;
+    margin: 0 0 0.35rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--line);
+    color: #c9c5bb;
+    font-size: clamp(0.82rem, 1vw, 0.94rem);
+    line-height: 1.7;
+  }
+  .section__rail {
+    position: absolute;
+    top: clamp(5rem, 12vh, 7rem);
+    left: clamp(0.5rem, 1.2vw, 1.1rem);
+    margin: 0;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    writing-mode: vertical-rl;
+    white-space: nowrap;
+  }
+
+  /* ---------- files / cards --------------------------------------------- */
+  .files {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+  .file {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--ink);
+  }
+  .file__top {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 7px;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+  .file__top .file__state { color: var(--paper); }
+  .file__art {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-bottom: 1px solid var(--line);
+    background: #111;
+  }
+  .file__art img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    filter: grayscale(1) contrast(1.16) brightness(0.9);
+    transition: filter 180ms linear;
+  }
+  .file:hover .file__art img { filter: grayscale(1) contrast(1.3) brightness(1); }
+  .file__art::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: repeating-linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 0, rgba(0, 0, 0, 0.08) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+  }
+  .file__art figcaption {
+    position: absolute;
+    z-index: 2;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: 0.45rem 0.6rem;
+    border-top: 1px solid rgba(239, 237, 229, 0.35);
+    color: #d0ccc2;
+    background: rgba(11, 11, 10, 0.72);
+    font-size: 7px;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+    text-transform: uppercase;
+  }
+  .file__art img.center { object-position: 60% 50%; }
+  .file--upcoming .file__art img { filter: grayscale(1) contrast(1.05) brightness(0.7) blur(8px); }
+  .file__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    padding: 0.9rem 0.8rem 1rem;
+  }
+  .file__body h3 {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: clamp(1.35rem, 1.7vw, 1.7rem);
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .file__desc {
+    margin: 0.75rem 0 0;
+    color: #c9c5bb;
+    font-size: 0.78rem;
+    line-height: 1.65;
+  }
+  .file__link {
+    display: inline-flex;
+    align-self: flex-start;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: auto;
+    padding: 1.1rem 0 0.3rem;
+    border-bottom: 1px solid var(--line-strong);
+    color: var(--paper);
+    font-size: 8px;
+    letter-spacing: 0.18em;
+    line-height: 1.4;
+    text-transform: uppercase;
+    transition: color 140ms linear, border-color 140ms linear;
+  }
+  .file__link:hover { color: var(--ash); border-color: var(--ash); }
+  .file__soon { color: var(--ash); border-bottom: 0; }
+
+  /* paper insert for games */
+  .section--paper {
+    --line: rgba(11, 11, 10, 0.22);
+    --line-strong: rgba(11, 11, 10, 0.55);
+    --ash: #6c6961;
+    background: var(--paper);
+    color: var(--ink);
+  }
+  .section--paper .section__lede { color: #3d3b35; }
+  .section--paper .file { background: var(--paper); }
+  .section--paper .file__top .file__state { color: var(--ink); }
+  .section--paper .file__art { background: #111; }
+  .section--paper .file__desc { color: #3d3b35; }
+  .section--paper .file__link { color: var(--ink); }
+  .section--paper .file__link:hover { color: #6c6961; border-color: #6c6961; }
+  .section--paper .file__soon { color: #6c6961; }
+
+  /* ---------- log -------------------------------------------------------- */
+  .log { border-top: 1px solid var(--line); }
+  .log__item {
+    display: grid;
+    grid-template-columns: 6rem 7rem minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .log__index,
+  .log__date {
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+  .log__body h3 {
+    margin: 0;
+    font-family: var(--sans);
+    font-size: clamp(1.4rem, 2vw, 2rem);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+  .log__body p {
+    max-width: 50rem;
+    margin: 0.6rem 0 0;
+    color: #c9c5bb;
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+  .new {
+    display: inline-block;
+    margin-left: 0.5rem;
+    padding: 0.2rem 0.35rem;
+    border: 1px solid var(--line-strong);
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 7px;
+    letter-spacing: 0.12em;
+    vertical-align: 0.2em;
+  }
+
+  /* ---------- footer ----------------------------------------------------- */
+  .foot {
+    padding: clamp(2.5rem, 6vh, 4rem) clamp(1.1rem, 4.2vw, 4.5rem) 1.2rem;
+    border-top: 1px solid var(--line);
+  }
+  .foot__meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--line);
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .foot__grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr 1.2fr;
+    gap: 2rem;
+    padding: 1.8rem 0 2rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .foot__label {
+    margin: 0 0 0.8rem;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .channels {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem 1.2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .channels a { border-bottom: 1px solid transparent; }
+  .channels a:hover { border-color: var(--paper); }
+  .foot__contact { font-size: 9px; line-height: 1.7; }
+  .foot__contact a { border-bottom: 1px solid var(--line-strong); }
+  .wallet {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.7rem;
+    font-size: 8px;
+    line-height: 1.6;
+  }
+  .wallet code {
+    max-width: 100%;
+    color: var(--paper);
+    font-family: var(--mono);
+    font-size: 8px;
+    word-break: break-all;
+  }
+  .wallet-key {
+    padding: 0.35rem 0.5rem;
+    border: 1px solid var(--line-strong);
+    color: var(--paper);
+    background: transparent;
+    font-family: var(--mono);
+    font-size: 8px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .wallet-key:hover { background: var(--paper); color: var(--ink); }
+  .foot__bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 1rem;
+    color: var(--ash);
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    line-height: 1.6;
+    text-transform: uppercase;
+  }
+
+  @media (max-width: 900px) {
+    .section__head { grid-template-columns: 1fr; gap: 1.2rem; align-items: start; }
+    .section__lede { max-width: 100%; border-left: 0; padding-left: 0; }
+    .files { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .log__item { grid-template-columns: 5rem minmax(0, 1fr); gap: 0.8rem 1.2rem; }
+    .log__body { grid-column: 1 / -1; }
+    .foot__grid { grid-template-columns: 1fr 1fr; }
+    .foot__grid > :last-child { grid-column: 1 / -1; }
+  }
+
+  @media (max-width: 800px) {
+    .hero {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto;
+      min-height: 100svh;
+      padding-top: calc(var(--bar-h) + 1rem);
+    }
+    .hero__meta { font-size: 7px; letter-spacing: 0.12em; }
+    .hero__meta span:nth-child(2) { display: none; }
+    .hero__main { padding: 2.2rem 0 0; }
+    .title { font-size: clamp(4rem, 21vw, 7rem); }
+    .title .hollow { margin-left: 0.45rem; }
+    .intro { max-width: 100%; }
+    .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 0.8rem; margin-top: 1.4rem; font-size: 7px; }
+    .facts div { padding: 0.4rem 0; }
+    .hero__right { padding: 2rem 0 0; }
+    .portrait { flex: none; width: 100%; min-height: 0; aspect-ratio: 1 / 1; }
+    .portrait img { object-position: 58% 36%; }
+    .side { display: none; }
+    .hero__foot { flex-wrap: wrap; gap: 0.7rem 1rem; padding-top: 1.1rem; }
+    .hero__foot .scroll { display: none; }
+  }
+
+  @media (max-width: 700px) {
+    .section { padding-top: 3rem; padding-bottom: 2.5rem; }
+    .section__meta { font-size: 7px; letter-spacing: 0.1em; }
+    .section__meta span:nth-child(2) { display: none; }
+    .section__head { padding: 1.8rem 0 1.8rem; }
+    .section__title { font-size: clamp(3.5rem, 16vw, 5rem); }
+    .section__rail { display: none; }
+    .files { grid-template-columns: 1fr; }
+    .file__body h3 { font-size: 1.55rem; }
+    .log__item { grid-template-columns: 1fr; gap: 0.35rem; padding: 1.1rem 0; }
+    .log__body { grid-column: auto; }
+    .foot__grid { grid-template-columns: 1fr; gap: 1.5rem; }
+    .foot__grid > :last-child { grid-column: auto; }
+    .foot__bottom { flex-direction: column; gap: 0.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .status::before { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="scanlines" aria-hidden="true"></div>
+
+<header class="topbar">
+  <nav aria-label="Sections">
+    <a class="is-active" href="#top"><span>00</span><span>demokira</span></a>
+    <a href="#music"><span>01</span><span>music</span></a>
+    <a href="#games"><span>02</span><span>games</span></a>
+    <a href="#log"><span>03</span><span>log</span></a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero" id="top" aria-labelledby="site-title">
+    <div class="hero__meta">
+      <span>00 / operator file</span>
+      <span class="status">signal active</span>
+      <span>dossier draft / 2026</span>
+    </div>
+
+    <div class="hero__main">
+      <p class="kicker">independent operator</p>
+      <h1 class="title" id="site-title"><span>demo</span><span class="hollow">kira</span></h1>
+      <p class="alias">Sargis Dskhkunyan</p>
+      <p class="intro">Hi, I'm Sargis Dskhkunyan aka Demokira — a creator making short indie games, experimental music, videos and AI content</p>
+
+      <dl class="facts">
+        <div><dt>output</dt><dd>games / music / video / ai</dd></div>
+        <div><dt>mode</dt><dd>independent</dd></div>
+        <div><dt>status</dt><dd>active</dd></div>
+        <div><dt>index</dt><dd>00—03</dd></div>
+      </dl>
+    </div>
+
+    <div class="hero__right">
+      <figure class="portrait">
+        <img src="../assets/artist.jpg" alt="Sargis Dskhkunyan, Demokira">
+        <span class="portrait__tag">portrait / 01</span>
+        <span class="reticle" aria-hidden="true"></span>
+        <figcaption><span>source: self</span><span>frame 01 / 01</span></figcaption>
+      </figure>
+      <p class="side">demokira — operator — 00</p>
+    </div>
+
+    <div class="hero__foot">
+      <nav class="hero__links" aria-label="Index">
+        <a href="#music">01 / music</a>
+        <a href="#games">02 / games</a>
+        <a href="#log">03 / log</a>
+      </nav>
+      <span class="scroll">scroll to index ↓</span>
+      <span>Sargis Dskhkunyan / 2026</span>
+    </div>
+  </section>
+
+  <section class="section" id="music" aria-labelledby="music-heading">
+    <div class="section__meta">
+      <span>01 / audio archive</span>
+      <span>side a</span>
+      <span>06 files</span>
+    </div>
+    <div class="section__head">
+      <p class="section__rail">side a / audio</p>
+      <h2 class="section__title" id="music-heading">Music</h2>
+      <p class="section__lede">Standalone releases and soundtracks for indie games — mine and other people's</p>
+    </div>
+
+    <ol class="files">
+      <li class="file">
+        <div class="file__top"><span>file 01</span><span class="file__state">playlist</span><span>2023—24</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/best-of.jpg" alt="Selected works cover artwork">
+          <figcaption>playlist</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Selected works</h3>
+          <p class="file__desc">A playlist featuring my favorite tracks from 2023 and 2024</p>
+          <a class="file__link" href="https://demokira.bandcamp.com/album/the-best-of-demokira-23-24" target="_blank" rel="noopener noreferrer">» listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 02</span><span class="file__state">album</span><span>bandcamp</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/demokira.jpg" alt="Demokira cover artwork">
+          <figcaption>album</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Demokira</h3>
+          <p class="file__desc">An experimental ambient album focusing on a dark sound and unusual textures</p>
+          <a class="file__link" href="https://demokira.bandcamp.com/album/demokira" target="_blank" rel="noopener noreferrer">» listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 03</span><span class="file__state">soundtrack</span><span>bandcamp</span></div>
+        <figure class="file__art">
+          <img class="center" src="../assets/covers/rekuiemu-ost.jpg" alt="Rekuiemu Nikki OST cover artwork">
+          <figcaption>soundtrack</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Rekuiemu Nikki OST</h3>
+          <p class="file__desc">A soundtrack inspired by the original Yume Nikki</p>
+          <a class="file__link" href="https://demokira.bandcamp.com/album/rekuiemu-nikki-demo-ost" target="_blank" rel="noopener noreferrer">» listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 04</span><span class="file__state">album</span><span>bandcamp</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/choice.jpg" alt="Why Do Not I Have A Choice cover artwork">
+          <figcaption>album</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Why Do Not I Have A Choice</h3>
+          <p class="file__desc">A solo piano album played live and improvised from start to finish</p>
+          <a class="file__link" href="https://demokira.bandcamp.com/album/why-do-not-i-have-a-choice" target="_blank" rel="noopener noreferrer">» listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 05</span><span class="file__state">album</span><span>bandcamp</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/hoax.jpg" alt="It Is Nothing Short Of A Hoax cover artwork">
+          <figcaption>album</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>It Is Nothing Short Of A Hoax</h3>
+          <p class="file__desc">An experimental breakcore album built on broken beats and ambient beds with sudden collapses</p>
+          <a class="file__link" href="https://demokira.bandcamp.com/album/it-is-nothing-short-of-a-hoax" target="_blank" rel="noopener noreferrer">» listen <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file file--upcoming">
+        <div class="file__top"><span>file 06</span><span class="file__state">album</span><span>locked</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/upcoming.jpg" alt="??? cover artwork">
+          <figcaption>album</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>???</h3>
+          <p class="file__desc">An experimental noise rock album built on broken guitars and tape hiss. A voice keeps slipping out of tune</p>
+          <span class="file__link file__soon">» soon</span>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="games" aria-labelledby="games-heading">
+    <div class="section__meta">
+      <span>02 / interactive archive</span>
+      <span>side b</span>
+      <span>03 files</span>
+    </div>
+    <div class="section__head">
+      <p class="section__rail">side b / interactive</p>
+      <h2 class="section__title" id="games-heading">Games</h2>
+      <p class="section__lede">Short narrative games from me, as well as other game jam projects</p>
+    </div>
+
+    <ol class="files">
+      <li class="file">
+        <div class="file__top"><span>file 01</span><span class="file__state">visual novel</span><span>itch.io</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/tv-show.jpg" alt="TV Show Or Die? cover artwork">
+          <figcaption>visual novel</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>TV Show Or Die?</h3>
+          <p class="file__desc">Took 1st place in the soundtrack category with the soundtrack written by me</p>
+          <a class="file__link" href="https://demokira.itch.io/tv-show-or-die" target="_blank" rel="noopener noreferrer">» play <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 02</span><span class="file__state">visual novel</span><span>itch.io</span></div>
+        <figure class="file__art">
+          <img src="../assets/covers/soul-of-akstama.jpg" alt="Soul of Akstama cover artwork">
+          <figcaption>visual novel</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Soul of Akstama</h3>
+          <p class="file__desc">A short visual novel that tells the story of a mirror located in Akstama Castle</p>
+          <a class="file__link" href="https://demokira.itch.io/soul-of-akstama" target="_blank" rel="noopener noreferrer">» play <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+      <li class="file">
+        <div class="file__top"><span>file 03</span><span class="file__state">surreal adventure</span><span>itch.io</span></div>
+        <figure class="file__art">
+          <img class="center" src="../assets/covers/rekuiemu-nikki.jpg" alt="Rekuiemu Nikki cover artwork">
+          <figcaption>surreal adventure</figcaption>
+        </figure>
+        <div class="file__body">
+          <h3>Rekuiemu Nikki</h3>
+          <p class="file__desc">A Yume Nikki fangame, about exploring the mind of young Julie</p>
+          <a class="file__link" href="https://eklsn.itch.io/reknikki" target="_blank" rel="noopener noreferrer">» play <span aria-hidden="true">↗</span></a>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="section" id="log" aria-labelledby="log-heading">
+    <div class="section__meta">
+      <span>03 / write buffer</span>
+      <span>notes</span>
+      <span>02 entries</span>
+    </div>
+    <div class="section__head">
+      <p class="section__rail">write buffer / notes</p>
+      <h2 class="section__title" id="log-heading">Blog</h2>
+      <p class="section__lede">Short notes: work-in-progress updates, thoughts, breakdowns</p>
+    </div>
+
+    <div class="log">
+      <article class="log__item">
+        <span class="log__index">log 001</span>
+        <time class="log__date" datetime="2026-09-27">26-09-27</time>
+        <div class="log__body">
+          <h3>It's quiet for now<span class="new">new!</span></h3>
+          <p>I have so many ideas, but little time and a lack of inspiration to bring them to life.</p>
+          <p>You might be expecting something new from me, but there probably won't be anything until the end of the year.</p>
+        </div>
+      </article>
+      <article class="log__item">
+        <span class="log__index">log 002</span>
+        <time class="log__date" datetime="2026-08-05">26-08-05</time>
+        <div class="log__body">
+          <h3>My personal page. I'm so glad!</h3>
+          <p>I’ve created my own page. I’ll try to populate it as things progress.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="foot__meta"><span>04 / channels</span><span>signal out</span><span>end of file</span></div>
+  <div class="foot__grid">
+    <div>
+      <p class="foot__label">channels</p>
+      <ul class="channels">
+        <li><a href="https://www.youtube.com/@demokira" target="_blank" rel="noopener noreferrer">youtube ↗</a></li>
+        <li><a href="https://demokira.itch.io" target="_blank" rel="noopener noreferrer">itch.io ↗</a></li>
+        <li><a href="https://demokira.bandcamp.com" target="_blank" rel="noopener noreferrer">bandcamp ↗</a></li>
+        <li><a href="https://www.tiktok.com/@demokira_?_r=1&amp;_t=ZS-98bt2Kt1skm" target="_blank" rel="noopener noreferrer">tiktok ↗</a></li>
+        <li><a href="https://www.instagram.com/srgsdshkhnn" target="_blank" rel="noopener noreferrer">instagram ↗</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="foot__label">contact</p>
+      <p class="foot__contact"><a href="mailto:sargis.dshkhunyan@gmail.com">sargis.dshkhunyan@gmail.com</a></p>
+    </div>
+    <div>
+      <p class="foot__label">support</p>
+      <div class="wallet">
+        <span>USDT ERC-20</span>
+        <code class="wallet-value">0xeE617911771d9Ce4eA3d1679400DaCcA7949faa9</code>
+        <button class="wallet-key" type="button">copy</button>
+      </div>
+    </div>
+  </div>
+  <div class="foot__bottom"><span>love and be loved © 2026 demokira</span><span>end of file / 00</span></div>
+</footer>
+
+<script>
+  document.querySelectorAll(".wallet-key").forEach(function (button) {
+    button.addEventListener("click", function () {
+      var value = document.querySelector(".wallet-value").textContent.trim();
+      if (navigator.clipboard) navigator.clipboard.writeText(value);
+      button.textContent = "copied";
+      window.setTimeout(function () { button.textContent = "copy"; }, 1400);
+    });
+  });
+</script>
+</body>
+</html>
